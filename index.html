@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>London List</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1410;
+    --paper: #f5f0e8;
+    --sepia: #8b6f47;
+    --sepia-light: #c4a882;
+    --done: #6b7b5e;
+    --accent: #c0392b;
+    --border: rgba(139,111,71,0.25);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; padding: 0 0 90px; }
+
+/* HEADER */
+header { background: var(–ink); color: var(–paper); padding: 20px 20px 14px; position: sticky; top: 0; z-index: 100; }
+.header-top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+header h1 { font-family: ‘Cormorant Garamond’, serif; font-size: 1.7rem; font-weight: 400; letter-spacing: 0.02em; }
+.stats-inline { font-size: 0.72rem; color: var(–sepia-light); letter-spacing: 0.05em; }
+
+/* AREA PILLS */
+.area-picker { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.area-picker::-webkit-scrollbar { display: none; }
+.area-pill { flex-shrink: 0; background: transparent; border: 1px solid rgba(255,255,255,0.18); color: var(–sepia-light); padding: 6px 13px; border-radius: 20px; font-family: ‘DM Sans’, sans-serif; font-size: 0.74rem; cursor: pointer; transition: all 0.18s; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+.area-pill.active { background: var(–sepia); border-color: var(–sepia); color: var(–paper); }
+.area-pill.all-pill.active { background: var(–accent); border-color: var(–accent); }
+
+/* TYPE BAR */
+.type-bar { display: flex; gap: 6px; padding: 9px 20px; background: rgba(20,15,12,0.95); border-top: 1px solid rgba(255,255,255,0.06); overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.type-bar::-webkit-scrollbar { display: none; }
+.type-btn { flex-shrink: 0; background: transparent; border: 1px solid rgba(255,255,255,0.13); color: rgba(196,168,130,0.65); padding: 4px 11px; border-radius: 14px; font-family: ‘DM Sans’, sans-serif; font-size: 0.68rem; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; transition: all 0.18s; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+.type-btn.active { background: rgba(139,111,71,0.32); border-color: var(–sepia); color: var(–paper); }
+
+/* CONTEXT */
+.context-bar { padding: 18px 20px 2px; display: flex; align-items: baseline; gap: 10px; }
+.context-area { font-family: ‘Cormorant Garamond’, serif; font-size: 1.55rem; font-weight: 600; color: var(–sepia); }
+.context-count { font-size: 0.7rem; color: var(–sepia-light); text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* LIST */
+.area-section { margin: 18px 16px 0; }
+.area-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 9px; padding-bottom: 7px; border-bottom: 1px solid var(–border); }
+.area-name { font-family: ‘Cormorant Garamond’, serif; font-size: 1.15rem; font-weight: 600; color: var(–sepia); }
+.area-count { font-size: 0.67rem; color: var(–sepia-light); letter-spacing: 0.07em; text-transform: uppercase; }
+.items-grid { display: flex; flex-direction: column; gap: 1px; }
+
+/* ITEM — tap anywhere to toggle visited, long-press to delete */
+.item { display: flex; align-items: flex-start; gap: 12px; padding: 11px 10px; border-radius: 8px; cursor: pointer; transition: background 0.12s; -webkit-tap-highlight-color: transparent; user-select: none; }
+.item:active { background: rgba(139,111,71,0.08); }
+.item.visited { opacity: 0.4; }
+
+.item-check { flex-shrink: 0; width: 20px; height: 20px; border: 1.5px solid var(–sepia-light); border-radius: 4px; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: white; transition: all 0.18s; }
+.item.visited .item-check { background: var(–done); border-color: var(–done); }
+
+.item-body { flex: 1; min-width: 0; }
+.item-name { font-size: 0.9rem; font-weight: 500; color: var(–ink); line-height: 1.4; }
+.item-note { font-size: 0.73rem; color: var(–sepia); margin-top: 2px; line-height: 1.4; font-style: italic; }
+
+.item-tag { flex-shrink: 0; font-size: 0.61rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 8px; border-radius: 10px; margin-top: 2px; align-self: flex-start; }
+.tag-food    { background: #fef3e2; color: #c47d0e; }
+.tag-museum  { background: #e8f0fe; color: #3367d6; }
+.tag-walk    { background: #e6f4ea; color: #2d7d46; }
+.tag-history { background: #fce8e6; color: #c0392b; }
+.tag-art     { background: #f3e8fd; color: #7b1fa2; }
+.tag-nature  { background: #e6f4ea; color: #2d7d46; }
+
+.empty-state { text-align: center; padding: 52px 20px; color: var(–sepia-light); font-style: italic; font-family: ‘Cormorant Garamond’, serif; font-size: 1.1rem; }
+
+/* FAB */
+.fab { position: fixed; bottom: 24px; right: 20px; width: 54px; height: 54px; border-radius: 50%; background: var(–accent); color: white; font-size: 1.6rem; line-height: 1; border: none; cursor: pointer; box-shadow: 0 4px 16px rgba(192,57,43,0.45); display: flex; align-items: center; justify-content: center; z-index: 200; transition: transform 0.15s; -webkit-tap-highlight-color: transparent; }
+.fab:active { transform: scale(0.93); }
+
+/* MODAL */
+.modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(26,20,16,0.65); z-index: 300; align-items: flex-end; justify-content: center; }
+.modal-backdrop.open { display: flex; }
+.modal { background: var(–paper); width: 100%; max-width: 520px; border-radius: 18px 18px 0 0; padding: 24px 20px 36px; animation: slideUp 0.22s ease; }
+@keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal-handle { width: 36px; height: 4px; background: var(–border); border-radius: 2px; margin: 0 auto 20px; }
+.modal h2 { font-family: ‘Cormorant Garamond’, serif; font-size: 1.4rem; font-weight: 600; color: var(–sepia); margin-bottom: 18px; }
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(–sepia); margin-bottom: 5px; }
+.field input, .field textarea, .field select { width: 100%; background: white; border: 1px solid var(–border); border-radius: 8px; padding: 10px 12px; font-family: ‘DM Sans’, sans-serif; font-size: 0.9rem; color: var(–ink); outline: none; transition: border-color 0.15s; -webkit-appearance: none; }
+.field input:focus, .field textarea:focus, .field select:focus { border-color: var(–sepia); }
+.field textarea { resize: none; height: 68px; line-height: 1.5; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+.btn-cancel { flex: 1; padding: 12px; border: 1px solid var(–border); border-radius: 10px; background: transparent; font-family: ‘DM Sans’, sans-serif; font-size: 0.85rem; color: var(–sepia); cursor: pointer; }
+.btn-save { flex: 2; padding: 12px; border: none; border-radius: 10px; background: var(–accent); font-family: ‘DM Sans’, sans-serif; font-size: 0.85rem; font-weight: 500; color: white; cursor: pointer; }
+
+/* TOAST */
+.toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: var(–ink); color: var(–paper); padding: 9px 18px; border-radius: 20px; font-size: 0.78rem; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 400; white-space: nowrap; }
+.toast.show { opacity: 1; }
+</style>
+
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <h1>London List</h1>
+    <span class="stats-inline" id="stats-inline">…</span>
+  </div>
+  <div class="area-picker" id="area-picker"></div>
+</header>
+
+<div class="type-bar">
+  <button class="type-btn active" onclick="setType('all',this)">All</button>
+  <button class="type-btn" onclick="setType('food',this)">🍴 Food</button>
+  <button class="type-btn" onclick="setType('museum',this)">🏛 Museums</button>
+  <button class="type-btn" onclick="setType('walk',this)">🚶 Walks</button>
+  <button class="type-btn" onclick="setType('history',this)">📜 History</button>
+  <button class="type-btn" onclick="setType('art',this)">🎨 Art</button>
+  <button class="type-btn" onclick="setType('nature',this)">🌿 Nature</button>
+  <button class="type-btn" onclick="setType('visited',this)">✓ Visited</button>
+</div>
+
+<div id="list-container"></div>
+<div class="toast" id="toast"></div>
+
+<button class="fab" onclick="openModal()">+</button>
+
+<!-- MODAL -->
+
+<div class="modal-backdrop" id="modal-backdrop" onclick="backdropClick(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>Add a place</h2>
+    <div class="field">
+      <label>Name *</label>
+      <input type="text" id="f-name" placeholder="e.g. Rochelle Canteen" autocomplete="off">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Area *</label>
+        <select id="f-area">
+          <option value="">— choose —</option>
+          <option value="__new__">+ New area…</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Category</label>
+        <select id="f-tag">
+          <option value="food">🍴 Food</option>
+          <option value="museum">🏛 Museum</option>
+          <option value="walk">🚶 Walk</option>
+          <option value="history">📜 History</option>
+          <option value="art">🎨 Art</option>
+          <option value="nature">🌿 Nature</option>
+        </select>
+      </div>
+    </div>
+    <div class="field" id="new-area-field" style="display:none">
+      <label>New area name</label>
+      <input type="text" id="f-new-area" placeholder="e.g. Bermondsey" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Note <span style="opacity:0.5;font-size:0.65rem;text-transform:none;letter-spacing:0">(address, tip, where you saw it)</span></label>
+      <textarea id="f-note" placeholder="e.g. Arnold Circus · via @LookupLondon"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="savePlace()">Save place</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SEED = [
+  { area: "City & Clerkenwell", name: "St Bartholomew Hospital Museum", note: "North Wing hall & staircase — Mon, Tue & first Sun of month", tags: ["museum","history"] },
+  { area: "City & Clerkenwell", name: "Bunhill Row", note: "Named after burial mounds and windmills from the 1500s", tags: ["history"] },
+  { area: "City & Clerkenwell", name: "Petty France", note: "Named after a Huguenot community; French spoken here in the 16th c.", tags: ["history"] },
+  { area: "City & Clerkenwell", name: "Cock Lane", note: "Medieval cockfighting site, later linked to brothels and the 'Cock Lane Ghost'", tags: ["history"] },
+  { area: "City & Clerkenwell", name: "Houndsditch", note: "Follows former ditch outside London Wall, once a dumping ground", tags: ["history"] },
+  { area: "Holborn & Bloomsbury", name: "John Soane Museum", note: "Sir John Soane's extraordinary house-museum", tags: ["museum","art"] },
+  { area: "Holborn & Bloomsbury", name: "Ely Place", note: "Medieval privately-owned gated cul-de-sac; home to St Etheldreda's", tags: ["history"] },
+  { area: "Covent Garden & Strand", name: "Cleopatra's Needle time capsule", note: "Victorian cache beneath the 1878 obelisk: cigars, coins, bibles, photos", tags: ["history"] },
+  { area: "Westminster & Pimlico", name: "Giro's Grave", note: "Waterloo Place — tomb of German ambassador's dog, electrocuted 1934. Inscribed 'the Nazi Dog'", tags: ["history"] },
+  { area: "Westminster & Pimlico", name: "Garrison Chapel", note: "livinglondonhistory.com — traditional arts", tags: ["history","art"] },
+  { area: "Westminster & Pimlico", name: "Taj Hotel courtyard Shakespeare frieze", note: "Buckingham Gate", tags: ["history"], visited: true },
+  { area: "Westminster & Pimlico", name: "Checkerboard House Estate", note: "Page Street, Pimlico", tags: ["history"], visited: true },
+  { area: "South Bank & Waterloo", name: "Morley Gallery — Canterbury Tales mural & mosaics", note: "Near Waterloo / Lambeth", tags: ["art"] },
+  { area: "South Bank & Waterloo", name: "Giacometti's at Tate Modern", tags: ["art","museum"] },
+  { area: "South Bank & Waterloo", name: "Cardinal Cap Alley", note: "Narrow gated alley by the Globe; named for Cardinal Beaufort's red hat", tags: ["history"] },
+  { area: "South Bank & Waterloo", name: "Dog and Pot Holden statue", note: "Southwark Station", tags: ["art","history"], visited: true },
+  { area: "Southwark & Elephant", name: "Southwark Walking Routes", note: "12 themed self-guided walks: architecture, film, myths, art, Dulwich, flora, rebels, war in Walworth, food & more", tags: ["walk","history"] },
+  { area: "Southwark & Elephant", name: "Shawarma Hut", note: "Elephant and Castle", tags: ["food"], visited: true },
+  { area: "Soho & Chinatown", name: "Waxy's Little Sister — Guinness lift", note: "Near Chinatown", tags: ["history"], visited: true },
+  { area: "Kensington & Notting Hill", name: "Leighton House & Sambourne House", note: "High Street Ken — rbkc.gov.uk/museums", tags: ["museum","art"] },
+  { area: "Kensington & Notting Hill", name: "Japan House — Pictograms exhibition", note: "High Street Kensington", tags: ["art","museum"] },
+  { area: "Kensington & Notting Hill", name: "Books for Cooks — Test Kitchen lunch", note: "£10, starts 12 noon — Blenheim Crescent, Notting Hill", tags: ["food"] },
+  { area: "Chiswick & West", name: "Oldest Wisteria in Europe", note: "Fuller's Brewery, Chiswick", tags: ["nature"] },
+  { area: "Marylebone & Regent's Park", name: "Regent's Park Elizabeth II Garden", tags: ["nature","walk"], visited: true },
+  { area: "Kings Cross", name: "Kings Cross Audio Story", note: "kingscrossstory.kingscross.co.uk", tags: ["history","walk"] },
+  { area: "Kings Cross", name: "Standard Hotel", note: "By Kings Cross station", tags: ["art"] },
+  { area: "Kings Cross", name: "Keystone Crescent", note: "By Kings Cross", tags: ["history"], visited: true },
+  { area: "Islington", name: "Indian Veg Buffet", note: "Chapel Market", tags: ["food"] },
+  { area: "Finsbury Park & Holloway", name: "JoJo's Kitchen", note: "Ethiopian — Blackstock Road, Finsbury Park", tags: ["food"] },
+  { area: "Finsbury Park & Holloway", name: "Parkland Walk", note: "Finsbury Park to Alexandra Palace via Highgate — 5 miles, great views", tags: ["walk","nature"] },
+  { area: "Finsbury Park & Holloway", name: "Hujra", note: "Afghan restaurant, Holloway Road", tags: ["food"] },
+  { area: "Finsbury Park & Holloway", name: "Mesi's Kitchen", note: "Ethiopian restaurant, Holloway Road", tags: ["food"] },
+  { area: "Stoke Newington", name: "Londis N16", note: "Indian home-cooked food", tags: ["food"] },
+  { area: "Stoke Newington", name: "Sutton House", note: "Tudor house, National Trust — Hackney", tags: ["museum","history"] },
+  { area: "Hackney & Bethnal Green", name: "Broadway Market", note: "Saturday market — good to explore further", tags: ["walk","food"] },
+  { area: "Hackney & Bethnal Green", name: "Pellicci Cafe", note: "Bethnal Green — legendary East End caff, Grade II listed interior", tags: ["food"] },
+  { area: "Brixton & Tooting", name: "Maureen's Brixton Kitchen — Jerk Chicken", tags: ["food"], visited: true },
+  { area: "Brixton & Tooting", name: "Dawat", note: "Tooting — kebab in naan, £2.49", tags: ["food"] },
+  { area: "Peckham & Camberwell", name: "Peckham Library", note: "Architecture Prize winner — striking orange canopy", tags: ["museum","art"], visited: true },
+  { area: "Greenwich & Deptford", name: "Greenwich", tags: ["walk","history","museum"], visited: true },
+  { area: "Greenwich & Deptford", name: "The Line Walk", note: "Docklands sculpture trail — Bill Nighy narration on Bloomberg Connects app", tags: ["walk","art"] },
+  { area: "Greenwich & Deptford", name: "Deptford Town Hall", note: "Near Greenwich — see Lookup London post", tags: ["history"] },
+  { area: "Anywhere (Underground)", name: "Mark Wallinger's Labyrinth", note: "270 enamel artworks — one at each Underground station; 150th anniversary, 2013", tags: ["art","walk"] },
+  { area: "Anywhere (Underground)", name: "Cabmen's Shelters", note: "13 surviving green huts from 1875 — shelter and food for cab drivers", tags: ["history"] },
+];
+
+const AREA_ORDER = [
+  "City & Clerkenwell","Holborn & Bloomsbury","Covent Garden & Strand",
+  "Soho & Chinatown","Westminster & Pimlico","South Bank & Waterloo",
+  "Southwark & Elephant","Kensington & Notting Hill","Chelsea",
+  "Chiswick & West","Marylebone & Regent's Park","Kings Cross",
+  "Islington","Finsbury Park & Holloway","Stoke Newington",
+  "Hackney & Bethnal Green","Brixton & Tooting","Peckham & Camberwell",
+  "Greenwich & Deptford","Anywhere (Underground)"
+];
+
+const STORE_KEY = 'll-places-v2';
+const tagColors = { food:'tag-food', museum:'tag-museum', walk:'tag-walk', history:'tag-history', art:'tag-art', nature:'tag-nature' };
+
+function loadPlaces() {
+  const stored = localStorage.getItem(STORE_KEY);
+  if (stored) return JSON.parse(stored);
+  const places = SEED.map((s, i) => ({
+    id: 'seed-' + i,
+    area: s.area, name: s.name, note: s.note || null,
+    tags: s.tags || [], visited: s.visited || false,
+  }));
+  savePlaces(places);
+  return places;
+}
+
+function savePlaces(p) { localStorage.setItem(STORE_KEY, JSON.stringify(p)); }
+
+let places = loadPlaces();
+let activeArea = 'all';
+let activeType = 'all';
+
+function allAreas() {
+  const known = new Set(AREA_ORDER);
+  const extra = [...new Set(places.map(p => p.area))].filter(a => !known.has(a));
+  return [...AREA_ORDER.filter(a => places.some(p => p.area === a)), ...extra];
+}
+
+// ── AREA PICKER ───────────────────────────────────────────────────────────────
+function buildAreaPicker() {
+  const picker = document.getElementById('area-picker');
+  picker.innerHTML = '';
+  const all = document.createElement('button');
+  all.className = 'area-pill all-pill' + (activeArea === 'all' ? ' active' : '');
+  all.textContent = 'All areas';
+  all.onclick = () => setArea('all', all);
+  picker.appendChild(all);
+  allAreas().forEach(area => {
+    const btn = document.createElement('button');
+    btn.className = 'area-pill' + (activeArea === area ? ' active' : '');
+    btn.textContent = area;
+    btn.dataset.area = area;
+    btn.onclick = () => setArea(area, btn);
+    picker.appendChild(btn);
+  });
+}
+
+function setArea(area, btn) {
+  activeArea = area;
+  buildAreaPicker();
+  setTimeout(() => btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }), 50);
+  render();
+}
+
+function setType(type, btn) {
+  activeType = type;
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function itemVisible(p) {
+  if (activeType === 'visited') return p.visited;
+  if (p.visited) return false; // hide visited from main lists
+  if (activeType !== 'all' && !(p.tags || []).includes(activeType)) return false;
+  return true;
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render() {
+  const container = document.getElementById('list-container');
+  container.innerHTML = '';
+
+  const active = places.filter(p => !p.visited);
+  const visited = places.filter(p => p.visited);
+  document.getElementById('stats-inline').textContent = `${active.length} to go · ${visited.length} visited`;
+
+  const areas = activeArea === 'all' ? allAreas() : [activeArea];
+
+  if (activeArea !== 'all') {
+    const count = places.filter(p => p.area === activeArea && itemVisible(p)).length;
+    const bar = document.createElement('div');
+    bar.className = 'context-bar';
+    bar.innerHTML = `<span class="context-area">${activeArea}</span><span class="context-count">${count} place${count !== 1 ? 's' : ''}</span>`;
+    container.appendChild(bar);
+  }
+
+  let anyItems = false;
+  areas.forEach(area => {
+    const areaPlaces = places.filter(p => p.area === area && itemVisible(p));
+    if (!areaPlaces.length) return;
+    anyItems = true;
+
+    const sec = document.createElement('div');
+    sec.className = 'area-section';
+
+    if (activeArea === 'all') {
+      const hdr = document.createElement('div');
+      hdr.className = 'area-header';
+      hdr.innerHTML = `<span class="area-name">${area}</span><span class="area-count">${areaPlaces.length} to go</span>`;
+      sec.appendChild(hdr);
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'items-grid';
+    areaPlaces.forEach(p => renderItem(grid, p));
+    sec.appendChild(grid);
+    container.appendChild(sec);
+  });
+
+  if (!anyItems) {
+    const msg = activeType === 'visited' ? 'No visited places yet' : 'Nothing here — tap + to add a place';
+    container.innerHTML += `<div class="empty-state">${msg}</div>`;
+  }
+}
+
+function renderItem(grid, p) {
+  const el = document.createElement('div');
+  el.className = `item${p.visited ? ' visited' : ''}`;
+
+  const tagHtml = (p.tags || []).slice(0,1).map(t =>
+    `<span class="item-tag ${tagColors[t]||''}">${t}</span>`
+  ).join('');
+
+  el.innerHTML = `
+    <div class="item-check">${p.visited ? '✓' : ''}</div>
+    <div class="item-body">
+      <div class="item-name">${p.name}</div>
+      ${p.note ? `<div class="item-note">${p.note}</div>` : ''}
+    </div>
+    ${tagHtml}
+  `;
+
+  // Tap = toggle visited
+  el.addEventListener('click', () => toggleVisited(p.id));
+
+  // Long-press = delete
+  let pressTimer;
+  el.addEventListener('pointerdown', () => {
+    pressTimer = setTimeout(() => {
+      if (confirm(`Delete "${p.name}"?`)) {
+        places = places.filter(x => x.id !== p.id);
+        savePlaces(places);
+        buildAreaPicker();
+        render();
+      }
+    }, 600);
+  });
+  el.addEventListener('pointerup',    () => clearTimeout(pressTimer));
+  el.addEventListener('pointerleave', () => clearTimeout(pressTimer));
+
+  grid.appendChild(el);
+}
+
+function toggleVisited(id) {
+  const p = places.find(x => x.id === id);
+  if (!p) return;
+  p.visited = !p.visited;
+  savePlaces(places);
+  if (p.visited) showToast(`Marked visited — tap again to undo`);
+  render();
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function openModal() {
+  const sel = document.getElementById('f-area');
+  sel.innerHTML = '<option value="">— choose —</option>';
+  allAreas().forEach(a => {
+    const opt = document.createElement('option');
+    opt.value = a; opt.textContent = a;
+    if (activeArea !== 'all' && a === activeArea) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  const newOpt = document.createElement('option');
+  newOpt.value = '__new__'; newOpt.textContent = '+ New area…';
+  sel.appendChild(newOpt);
+  ['f-name','f-note','f-new-area'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('new-area-field').style.display = 'none';
+  document.getElementById('modal-backdrop').classList.add('open');
+  setTimeout(() => document.getElementById('f-name').focus(), 250);
+}
+
+function closeModal() { document.getElementById('modal-backdrop').classList.remove('open'); }
+function backdropClick(e) { if (e.target === document.getElementById('modal-backdrop')) closeModal(); }
+
+document.getElementById('f-area').addEventListener('change', function() {
+  const show = this.value === '__new__';
+  document.getElementById('new-area-field').style.display = show ? 'block' : 'none';
+  if (show) document.getElementById('f-new-area').focus();
+});
+
+function savePlace() {
+  const name = document.getElementById('f-name').value.trim();
+  let area = document.getElementById('f-area').value;
+  if (area === '__new__') area = document.getElementById('f-new-area').value.trim();
+  const note = document.getElementById('f-note').value.trim();
+  const tag  = document.getElementById('f-tag').value;
+  if (!name) { document.getElementById('f-name').focus(); return; }
+  if (!area) { document.getElementById('f-area').focus(); return; }
+  places.push({ id: Date.now().toString(), area, name, note: note || null, tags: [tag], visited: false });
+  savePlaces(places);
+  closeModal();
+  activeArea = area;
+  buildAreaPicker();
+  render();
+  setTimeout(() => {
+    const pill = document.querySelector(`.area-pill[data-area="${CSS.escape(area)}"]`);
+    if (pill) pill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }, 120);
+}
+
+buildAreaPicker();
+render();
+</script>
+
+</body>
+</html>
