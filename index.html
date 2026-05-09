@@ -1,11 +1,9 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>London List</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
     --ink: #1a1410;
@@ -15,118 +13,121 @@
     --done: #6b7b5e;
     --accent: #c0392b;
     --border: rgba(139,111,71,0.25);
+    --serif: Georgia, 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; padding: 0 0 90px; }
+  body { font-family: var(--sans); background: var(--paper); color: var(--ink); min-height: 100vh; padding: 0 0 90px; }
 
-/* HEADER */
-header { background: var(–ink); color: var(–paper); padding: 20px 20px 14px; position: sticky; top: 0; z-index: 100; }
-.header-top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
-header h1 { font-family: ‘Cormorant Garamond’, serif; font-size: 1.7rem; font-weight: 400; letter-spacing: 0.02em; }
-.stats-inline { font-size: 0.72rem; color: var(–sepia-light); letter-spacing: 0.05em; }
+  /* STICKY WRAPPER — both header and type bar stick together */
+  .sticky-top { position: sticky; top: 0; z-index: 100; }
 
-/* AREA PILLS */
-.area-picker { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-.area-picker::-webkit-scrollbar { display: none; }
-.area-pill { flex-shrink: 0; background: transparent; border: 1px solid rgba(255,255,255,0.18); color: var(–sepia-light); padding: 6px 13px; border-radius: 20px; font-family: ‘DM Sans’, sans-serif; font-size: 0.74rem; cursor: pointer; transition: all 0.18s; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
-.area-pill.active { background: var(–sepia); border-color: var(–sepia); color: var(–paper); }
-.area-pill.all-pill.active { background: var(–accent); border-color: var(–accent); }
+  /* HEADER */
+  header { background: var(--ink); color: var(--paper); padding: 16px 20px 12px; }
+  .header-top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+  header h1 { font-family: var(--serif); font-size: 1.6rem; font-weight: normal; letter-spacing: 0.01em; color: var(--paper); }
+  .stats-inline { font-size: 0.72rem; color: var(--sepia-light); letter-spacing: 0.05em; }
 
-/* TYPE BAR */
-.type-bar { display: flex; gap: 6px; padding: 9px 20px; background: rgba(20,15,12,0.95); border-top: 1px solid rgba(255,255,255,0.06); overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-.type-bar::-webkit-scrollbar { display: none; }
-.type-btn { flex-shrink: 0; background: transparent; border: 1px solid rgba(255,255,255,0.13); color: rgba(196,168,130,0.65); padding: 4px 11px; border-radius: 14px; font-family: ‘DM Sans’, sans-serif; font-size: 0.68rem; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; transition: all 0.18s; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
-.type-btn.active { background: rgba(139,111,71,0.32); border-color: var(–sepia); color: var(–paper); }
+  /* AREA PILLS */
+  .area-picker { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .area-picker::-webkit-scrollbar { display: none; }
+  .area-pill { flex-shrink: 0; background: transparent; border: 1px solid rgba(255,255,255,0.22); color: var(--sepia-light); padding: 6px 13px; border-radius: 20px; font-family: var(--sans); font-size: 0.74rem; cursor: pointer; transition: all 0.18s; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+  .area-pill.active { background: var(--sepia); border-color: var(--sepia); color: #fff; }
+  .area-pill.all-pill.active { background: var(--accent); border-color: var(--accent); }
 
-/* CONTEXT */
-.context-bar { padding: 18px 20px 2px; display: flex; align-items: baseline; gap: 10px; }
-.context-area { font-family: ‘Cormorant Garamond’, serif; font-size: 1.55rem; font-weight: 600; color: var(–sepia); }
-.context-count { font-size: 0.7rem; color: var(–sepia-light); text-transform: uppercase; letter-spacing: 0.06em; }
+  /* TYPE BAR */
+  .type-bar { display: flex; gap: 6px; padding: 8px 20px 9px; background: #111; border-top: 1px solid rgba(255,255,255,0.07); overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .type-bar::-webkit-scrollbar { display: none; }
+  .type-btn { flex-shrink: 0; background: transparent; border: 1px solid rgba(255,255,255,0.15); color: rgba(196,168,130,0.7); padding: 5px 12px; border-radius: 14px; font-family: var(--sans); font-size: 0.68rem; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; transition: all 0.18s; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+  .type-btn.active { background: rgba(139,111,71,0.35); border-color: var(--sepia); color: #fff; }
 
-/* LIST */
-.area-section { margin: 18px 16px 0; }
-.area-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 9px; padding-bottom: 7px; border-bottom: 1px solid var(–border); }
-.area-name { font-family: ‘Cormorant Garamond’, serif; font-size: 1.15rem; font-weight: 600; color: var(–sepia); }
-.area-count { font-size: 0.67rem; color: var(–sepia-light); letter-spacing: 0.07em; text-transform: uppercase; }
-.items-grid { display: flex; flex-direction: column; gap: 1px; }
+  /* CONTEXT */
+  .context-bar { padding: 18px 20px 2px; display: flex; align-items: baseline; gap: 10px; }
+  .context-area { font-family: var(--serif); font-size: 1.5rem; color: var(--sepia); }
+  .context-count { font-size: 0.7rem; color: var(--sepia-light); text-transform: uppercase; letter-spacing: 0.06em; }
 
-/* ITEM — tap anywhere to toggle visited, long-press to delete */
-.item { display: flex; align-items: flex-start; gap: 12px; padding: 11px 10px; border-radius: 8px; cursor: pointer; transition: background 0.12s; -webkit-tap-highlight-color: transparent; user-select: none; }
-.item:active { background: rgba(139,111,71,0.08); }
-.item.visited { opacity: 0.4; }
+  /* LIST */
+  .area-section { margin: 18px 16px 0; }
+  .area-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 9px; padding-bottom: 7px; border-bottom: 1px solid var(--border); }
+  .area-name { font-family: var(--serif); font-size: 1.15rem; color: var(--sepia); }
+  .area-count { font-size: 0.67rem; color: var(--sepia-light); letter-spacing: 0.07em; text-transform: uppercase; }
+  .items-grid { display: flex; flex-direction: column; gap: 1px; }
 
-.item-check { flex-shrink: 0; width: 20px; height: 20px; border: 1.5px solid var(–sepia-light); border-radius: 4px; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: white; transition: all 0.18s; }
-.item.visited .item-check { background: var(–done); border-color: var(–done); }
+  /* ITEM */
+  .item { display: flex; align-items: flex-start; gap: 12px; padding: 11px 10px; border-radius: 8px; cursor: pointer; transition: background 0.12s; -webkit-tap-highlight-color: transparent; user-select: none; }
+  .item:active { background: rgba(139,111,71,0.09); }
+  .item.visited { opacity: 0.38; }
 
-.item-body { flex: 1; min-width: 0; }
-.item-name { font-size: 0.9rem; font-weight: 500; color: var(–ink); line-height: 1.4; }
-.item-note { font-size: 0.73rem; color: var(–sepia); margin-top: 2px; line-height: 1.4; font-style: italic; }
+  .item-check { flex-shrink: 0; width: 20px; height: 20px; border: 1.5px solid var(--sepia-light); border-radius: 4px; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; transition: all 0.18s; }
+  .item.visited .item-check { background: var(--done); border-color: var(--done); }
 
-.item-tag { flex-shrink: 0; font-size: 0.61rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 8px; border-radius: 10px; margin-top: 2px; align-self: flex-start; }
-.tag-food    { background: #fef3e2; color: #c47d0e; }
-.tag-museum  { background: #e8f0fe; color: #3367d6; }
-.tag-walk    { background: #e6f4ea; color: #2d7d46; }
-.tag-history { background: #fce8e6; color: #c0392b; }
-.tag-art     { background: #f3e8fd; color: #7b1fa2; }
-.tag-nature  { background: #e6f4ea; color: #2d7d46; }
+  .item-body { flex: 1; min-width: 0; }
+  .item-name { font-size: 0.9rem; font-weight: 500; color: var(--ink); line-height: 1.4; }
+  .item-note { font-size: 0.73rem; color: var(--sepia); margin-top: 2px; line-height: 1.4; font-style: italic; }
 
-.empty-state { text-align: center; padding: 52px 20px; color: var(–sepia-light); font-style: italic; font-family: ‘Cormorant Garamond’, serif; font-size: 1.1rem; }
+  .item-tag { flex-shrink: 0; font-size: 0.61rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 8px; border-radius: 10px; margin-top: 2px; align-self: flex-start; font-weight: 600; }
+  .tag-food    { background: #fef3e2; color: #b86e00; }
+  .tag-museum  { background: #e8f0fe; color: #2a5cc7; }
+  .tag-walk    { background: #e6f4ea; color: #2a6e40; }
+  .tag-history { background: #fce8e6; color: #b03020; }
+  .tag-art     { background: #f3e8fd; color: #6a1a90; }
+  .tag-nature  { background: #e6f4ea; color: #2a6e40; }
 
-/* FAB */
-.fab { position: fixed; bottom: 24px; right: 20px; width: 54px; height: 54px; border-radius: 50%; background: var(–accent); color: white; font-size: 1.6rem; line-height: 1; border: none; cursor: pointer; box-shadow: 0 4px 16px rgba(192,57,43,0.45); display: flex; align-items: center; justify-content: center; z-index: 200; transition: transform 0.15s; -webkit-tap-highlight-color: transparent; }
-.fab:active { transform: scale(0.93); }
+  .empty-state { text-align: center; padding: 52px 20px; color: var(--sepia-light); font-style: italic; font-family: var(--serif); font-size: 1.1rem; }
 
-/* MODAL */
-.modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(26,20,16,0.65); z-index: 300; align-items: flex-end; justify-content: center; }
-.modal-backdrop.open { display: flex; }
-.modal { background: var(–paper); width: 100%; max-width: 520px; border-radius: 18px 18px 0 0; padding: 24px 20px 36px; animation: slideUp 0.22s ease; }
-@keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-.modal-handle { width: 36px; height: 4px; background: var(–border); border-radius: 2px; margin: 0 auto 20px; }
-.modal h2 { font-family: ‘Cormorant Garamond’, serif; font-size: 1.4rem; font-weight: 600; color: var(–sepia); margin-bottom: 18px; }
-.field { margin-bottom: 14px; }
-.field label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(–sepia); margin-bottom: 5px; }
-.field input, .field textarea, .field select { width: 100%; background: white; border: 1px solid var(–border); border-radius: 8px; padding: 10px 12px; font-family: ‘DM Sans’, sans-serif; font-size: 0.9rem; color: var(–ink); outline: none; transition: border-color 0.15s; -webkit-appearance: none; }
-.field input:focus, .field textarea:focus, .field select:focus { border-color: var(–sepia); }
-.field textarea { resize: none; height: 68px; line-height: 1.5; }
-.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-.btn-cancel { flex: 1; padding: 12px; border: 1px solid var(–border); border-radius: 10px; background: transparent; font-family: ‘DM Sans’, sans-serif; font-size: 0.85rem; color: var(–sepia); cursor: pointer; }
-.btn-save { flex: 2; padding: 12px; border: none; border-radius: 10px; background: var(–accent); font-family: ‘DM Sans’, sans-serif; font-size: 0.85rem; font-weight: 500; color: white; cursor: pointer; }
+  /* FAB */
+  .fab { position: fixed; bottom: 24px; right: 20px; width: 54px; height: 54px; border-radius: 50%; background: var(--accent); color: white; font-size: 1.7rem; line-height: 1; border: none; cursor: pointer; box-shadow: 0 4px 18px rgba(192,57,43,0.5); display: flex; align-items: center; justify-content: center; z-index: 200; transition: transform 0.15s; -webkit-tap-highlight-color: transparent; }
+  .fab:active { transform: scale(0.92); }
 
-/* TOAST */
-.toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: var(–ink); color: var(–paper); padding: 9px 18px; border-radius: 20px; font-size: 0.78rem; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 400; white-space: nowrap; }
-.toast.show { opacity: 1; }
+  /* MODAL */
+  .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(26,20,16,0.65); z-index: 300; align-items: flex-end; justify-content: center; }
+  .modal-backdrop.open { display: flex; }
+  .modal { background: var(--paper); width: 100%; max-width: 520px; border-radius: 18px 18px 0 0; padding: 24px 20px 36px; animation: slideUp 0.22s ease; }
+  @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px; }
+  .modal h2 { font-family: var(--serif); font-size: 1.4rem; color: var(--sepia); margin-bottom: 18px; font-weight: normal; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--sepia); margin-bottom: 5px; }
+  .field input, .field textarea, .field select { width: 100%; background: white; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-family: var(--sans); font-size: 0.9rem; color: var(--ink); outline: none; transition: border-color 0.15s; -webkit-appearance: none; }
+  .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--sepia); }
+  .field textarea { resize: none; height: 68px; line-height: 1.5; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn-cancel { flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: transparent; font-family: var(--sans); font-size: 0.85rem; color: var(--sepia); cursor: pointer; }
+  .btn-save { flex: 2; padding: 12px; border: none; border-radius: 10px; background: var(--accent); font-family: var(--sans); font-size: 0.85rem; font-weight: 500; color: white; cursor: pointer; }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 9px 18px; border-radius: 20px; font-size: 0.78rem; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 400; white-space: nowrap; }
+  .toast.show { opacity: 1; }
 </style>
-
 </head>
 <body>
 
-<header>
-  <div class="header-top">
-    <h1>London List</h1>
-    <span class="stats-inline" id="stats-inline">…</span>
+<div class="sticky-top">
+  <header>
+    <div class="header-top">
+      <h1>London List</h1>
+      <span class="stats-inline" id="stats-inline">…</span>
+    </div>
+    <div class="area-picker" id="area-picker"></div>
+  </header>
+  <div class="type-bar">
+    <button class="type-btn active" onclick="setType('all',this)">All</button>
+    <button class="type-btn" onclick="setType('food',this)">🍴 Food</button>
+    <button class="type-btn" onclick="setType('museum',this)">🏛 Museums</button>
+    <button class="type-btn" onclick="setType('walk',this)">🚶 Walks</button>
+    <button class="type-btn" onclick="setType('history',this)">📜 History</button>
+    <button class="type-btn" onclick="setType('art',this)">🎨 Art</button>
+    <button class="type-btn" onclick="setType('nature',this)">🌿 Nature</button>
+    <button class="type-btn" onclick="setType('visited',this)">✓ Visited</button>
   </div>
-  <div class="area-picker" id="area-picker"></div>
-</header>
-
-<div class="type-bar">
-  <button class="type-btn active" onclick="setType('all',this)">All</button>
-  <button class="type-btn" onclick="setType('food',this)">🍴 Food</button>
-  <button class="type-btn" onclick="setType('museum',this)">🏛 Museums</button>
-  <button class="type-btn" onclick="setType('walk',this)">🚶 Walks</button>
-  <button class="type-btn" onclick="setType('history',this)">📜 History</button>
-  <button class="type-btn" onclick="setType('art',this)">🎨 Art</button>
-  <button class="type-btn" onclick="setType('nature',this)">🌿 Nature</button>
-  <button class="type-btn" onclick="setType('visited',this)">✓ Visited</button>
 </div>
 
 <div id="list-container"></div>
 <div class="toast" id="toast"></div>
-
 <button class="fab" onclick="openModal()">+</button>
 
 <!-- MODAL -->
-
 <div class="modal-backdrop" id="modal-backdrop" onclick="backdropClick(event)">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -235,8 +236,7 @@ function loadPlaces() {
   const stored = localStorage.getItem(STORE_KEY);
   if (stored) return JSON.parse(stored);
   const places = SEED.map((s, i) => ({
-    id: 'seed-' + i,
-    area: s.area, name: s.name, note: s.note || null,
+    id: 'seed-' + i, area: s.area, name: s.name, note: s.note || null,
     tags: s.tags || [], visited: s.visited || false,
   }));
   savePlaces(places);
@@ -255,7 +255,6 @@ function allAreas() {
   return [...AREA_ORDER.filter(a => places.some(p => p.area === a)), ...extra];
 }
 
-// ── AREA PICKER ───────────────────────────────────────────────────────────────
 function buildAreaPicker() {
   const picker = document.getElementById('area-picker');
   picker.innerHTML = '';
@@ -290,12 +289,11 @@ function setType(type, btn) {
 
 function itemVisible(p) {
   if (activeType === 'visited') return p.visited;
-  if (p.visited) return false; // hide visited from main lists
+  if (p.visited) return false;
   if (activeType !== 'all' && !(p.tags || []).includes(activeType)) return false;
   return true;
 }
 
-// ── RENDER ────────────────────────────────────────────────────────────────────
 function render() {
   const container = document.getElementById('list-container');
   container.innerHTML = '';
@@ -360,10 +358,8 @@ function renderItem(grid, p) {
     ${tagHtml}
   `;
 
-  // Tap = toggle visited
   el.addEventListener('click', () => toggleVisited(p.id));
 
-  // Long-press = delete
   let pressTimer;
   el.addEventListener('pointerdown', () => {
     pressTimer = setTimeout(() => {
@@ -373,9 +369,10 @@ function renderItem(grid, p) {
         buildAreaPicker();
         render();
       }
-    }, 600);
+    }, 700);
   });
   el.addEventListener('pointerup',    () => clearTimeout(pressTimer));
+  el.addEventListener('pointermove',  () => clearTimeout(pressTimer));
   el.addEventListener('pointerleave', () => clearTimeout(pressTimer));
 
   grid.appendChild(el);
@@ -386,11 +383,10 @@ function toggleVisited(id) {
   if (!p) return;
   p.visited = !p.visited;
   savePlaces(places);
-  if (p.visited) showToast(`Marked visited — tap again to undo`);
+  if (p.visited) showToast('Marked visited · tap again to undo');
   render();
 }
 
-// ── TOAST ─────────────────────────────────────────────────────────────────────
 let toastTimer;
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -400,7 +396,6 @@ function showToast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// ── MODAL ─────────────────────────────────────────────────────────────────────
 function openModal() {
   const sel = document.getElementById('f-area');
   sel.innerHTML = '<option value="">— choose —</option>';
@@ -451,6 +446,5 @@ function savePlace() {
 buildAreaPicker();
 render();
 </script>
-
 </body>
 </html>
