@@ -416,9 +416,16 @@ function buildAreaPicker() {
 }
 
 function setArea(area, btn) {
-  activeArea = area;
+  if (activeArea === area && area !== 'all') {
+    activeArea = 'all';
+  } else {
+    activeArea = area;
+  }
   buildAreaPicker();
-  setTimeout(() => btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }), 50);
+  setTimeout(() => {
+    const active = document.querySelector('.area-pill.active');
+    if (active) active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }, 50);
   render();
 }
 
