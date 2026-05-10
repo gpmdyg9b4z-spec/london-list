@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light only">
 <title>London List</title>
 <style>
   :root {
@@ -16,98 +17,118 @@
     --serif: Georgia, 'Times New Roman', serif;
     --sans: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: var(--sans); background: var(--paper); color: var(--ink); min-height: 100vh; padding: 0 0 90px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; color-scheme: light; }
+  html, body { background: #f5f0e8 !important; color: #1a1410 !important; }
+  body { font-family: var(--sans); min-height: 100vh; padding: 0 0 90px; -webkit-text-size-adjust: 100%; }
 
-  /* STICKY WRAPPER — both header and type bar stick together */
+  /* STICKY TOP */
   .sticky-top { position: sticky; top: 0; z-index: 100; }
+  header { background: #1a1410; color: #f5f0e8; padding: 16px 20px 12px; }
+  .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  header h1 { font-family: var(--serif); font-size: 1.6rem; font-weight: normal; color: #f5f0e8; }
+  .stats-inline { font-size: 0.72rem; color: #c4a882; }
 
-  /* HEADER */
-  header { background: var(--ink); color: var(--paper); padding: 16px 20px 12px; }
-  .header-top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
-  header h1 { font-family: var(--serif); font-size: 1.6rem; font-weight: normal; letter-spacing: 0.01em; color: var(--paper); }
-  .stats-inline { font-size: 0.72rem; color: var(--sepia-light); letter-spacing: 0.05em; }
+  /* MAP BUTTON in header */
+  .map-btn {
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.22);
+    color: #f5f0e8;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+  }
+  .map-btn:active { background: rgba(255,255,255,0.2); }
 
   /* AREA PILLS */
   .area-picker { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .area-picker::-webkit-scrollbar { display: none; }
-  .area-pill { flex-shrink: 0; background: transparent; border: 1px solid rgba(255,255,255,0.22); color: var(--sepia-light); padding: 6px 13px; border-radius: 20px; font-family: var(--sans); font-size: 0.74rem; cursor: pointer; transition: all 0.18s; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
-  .area-pill.active { background: var(--sepia); border-color: var(--sepia); color: #fff; }
-  .area-pill.all-pill.active { background: var(--accent); border-color: var(--accent); }
+  .area-pill { flex-shrink: 0; background: transparent; border: 1px solid rgba(255,255,255,0.22); color: #c4a882; padding: 6px 13px; border-radius: 20px; font-family: var(--sans); font-size: 0.74rem; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+  .area-pill.active { background: #8b6f47; border-color: #8b6f47; color: #fff; }
+  .area-pill.all-pill.active { background: #c0392b; border-color: #c0392b; }
 
   /* TYPE BAR */
   .type-bar { display: flex; gap: 6px; padding: 8px 20px 9px; background: #111; border-top: 1px solid rgba(255,255,255,0.07); overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .type-bar::-webkit-scrollbar { display: none; }
-  .type-btn { flex-shrink: 0; background: transparent; border: 1px solid rgba(255,255,255,0.15); color: rgba(196,168,130,0.7); padding: 5px 12px; border-radius: 14px; font-family: var(--sans); font-size: 0.68rem; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; transition: all 0.18s; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
-  .type-btn.active { background: rgba(139,111,71,0.35); border-color: var(--sepia); color: #fff; }
+  .type-btn { flex-shrink: 0; background: transparent; border: 1px solid rgba(255,255,255,0.15); color: rgba(196,168,130,0.7); padding: 5px 12px; border-radius: 14px; font-family: var(--sans); font-size: 0.68rem; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+  .type-btn.active { background: rgba(139,111,71,0.35); border-color: #8b6f47; color: #fff; }
 
-  /* CONTEXT */
+  /* CONTEXT BAR */
   .context-bar { padding: 18px 20px 2px; display: flex; align-items: baseline; gap: 10px; }
-  .context-area { font-family: var(--serif); font-size: 1.5rem; color: var(--sepia); }
-  .context-count { font-size: 0.7rem; color: var(--sepia-light); text-transform: uppercase; letter-spacing: 0.06em; }
+  .context-area { font-family: var(--serif); font-size: 1.5rem; color: #8b6f47; }
+  .context-count { font-size: 0.7rem; color: #c4a882; text-transform: uppercase; letter-spacing: 0.06em; }
 
   /* LIST */
-  .area-section { margin: 18px 16px 0; }
-  .area-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 9px; padding-bottom: 7px; border-bottom: 1px solid var(--border); }
-  .area-name { font-family: var(--serif); font-size: 1.15rem; color: var(--sepia); }
-  .area-count { font-size: 0.67rem; color: var(--sepia-light); letter-spacing: 0.07em; text-transform: uppercase; }
+  .area-section { margin: 18px 16px 0; background: #f5f0e8; }
+  .area-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 9px; padding-bottom: 7px; border-bottom: 1px solid rgba(139,111,71,0.25); }
+  .area-name { font-family: var(--serif); font-size: 1.15rem; color: #8b6f47; }
+  .area-count { font-size: 0.67rem; color: #c4a882; letter-spacing: 0.07em; text-transform: uppercase; }
   .items-grid { display: flex; flex-direction: column; gap: 1px; }
 
   /* ITEM */
-  .item { display: flex; align-items: flex-start; gap: 12px; padding: 11px 10px; border-radius: 8px; cursor: pointer; transition: background 0.12s; -webkit-tap-highlight-color: transparent; user-select: none; }
-  .item:active { background: rgba(139,111,71,0.09); }
+  .item { display: flex; align-items: flex-start; gap: 12px; padding: 11px 10px; border-radius: 8px; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; background: #f5f0e8; }
+  .item:active { background: rgba(139,111,71,0.09) !important; }
   .item.visited { opacity: 0.38; }
 
-  .item-check { flex-shrink: 0; width: 20px; height: 20px; border: 1.5px solid var(--sepia-light); border-radius: 4px; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; transition: all 0.18s; }
-  .item.visited .item-check { background: var(--done); border-color: var(--done); }
+  .item-check { flex-shrink: 0; width: 20px; height: 20px; border: 1.5px solid #c4a882; border-radius: 4px; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; }
+  .item.visited .item-check { background: #6b7b5e; border-color: #6b7b5e; }
 
   .item-body { flex: 1; min-width: 0; }
-  .item-name { font-size: 0.9rem; font-weight: 500; color: var(--ink); line-height: 1.4; }
-  .item-note { font-size: 0.73rem; color: var(--sepia); margin-top: 2px; line-height: 1.4; font-style: italic; }
+  .item-name { font-size: 0.9rem; font-weight: 500; color: #1a1410 !important; line-height: 1.4; }
+  .item-note { font-size: 0.73rem; color: #8b6f47 !important; margin-top: 2px; line-height: 1.4; font-style: italic; }
 
   .item-tag { flex-shrink: 0; font-size: 0.61rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 8px; border-radius: 10px; margin-top: 2px; align-self: flex-start; font-weight: 600; }
-  .tag-food    { background: #fef3e2; color: #b86e00; }
-  .tag-museum  { background: #e8f0fe; color: #2a5cc7; }
-  .tag-walk    { background: #e6f4ea; color: #2a6e40; }
-  .tag-history { background: #fce8e6; color: #b03020; }
-  .tag-art     { background: #f3e8fd; color: #6a1a90; }
-  .tag-nature  { background: #e6f4ea; color: #2a6e40; }
+  .tag-food         { background: #fef3e2; color: #b86e00; }
+  .tag-museum       { background: #e8f0fe; color: #2a5cc7; }
+  .tag-architecture { background: #ede8f5; color: #5a4a78; }
+  .tag-walk         { background: #e6f4ea; color: #2a6e40; }
+  .tag-history      { background: #fce8e6; color: #b03020; }
+  .tag-art          { background: #f3e8fd; color: #6a1a90; }
+  .tag-nature       { background: #e6f4ea; color: #2a6e40; }
 
-  .empty-state { text-align: center; padding: 52px 20px; color: var(--sepia-light); font-style: italic; font-family: var(--serif); font-size: 1.1rem; }
+  .empty-state { text-align: center; padding: 52px 20px; color: #c4a882; font-style: italic; font-family: var(--serif); font-size: 1.1rem; }
 
   /* FAB */
-  .fab { position: fixed; bottom: 24px; right: 20px; width: 54px; height: 54px; border-radius: 50%; background: var(--accent); color: white; font-size: 1.7rem; line-height: 1; border: none; cursor: pointer; box-shadow: 0 4px 18px rgba(192,57,43,0.5); display: flex; align-items: center; justify-content: center; z-index: 200; transition: transform 0.15s; -webkit-tap-highlight-color: transparent; }
+  .fab { position: fixed; bottom: 24px; right: 20px; width: 54px; height: 54px; border-radius: 50%; background: #c0392b; color: white; font-size: 1.7rem; line-height: 1; border: none; cursor: pointer; box-shadow: 0 4px 18px rgba(192,57,43,0.5); display: flex; align-items: center; justify-content: center; z-index: 200; -webkit-tap-highlight-color: transparent; }
   .fab:active { transform: scale(0.92); }
 
   /* MODAL */
   .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(26,20,16,0.65); z-index: 300; align-items: flex-end; justify-content: center; }
   .modal-backdrop.open { display: flex; }
-  .modal { background: var(--paper); width: 100%; max-width: 520px; border-radius: 18px 18px 0 0; padding: 24px 20px 36px; animation: slideUp 0.22s ease; }
+  .modal { background: #f5f0e8; width: 100%; max-width: 520px; border-radius: 18px 18px 0 0; padding: 24px 20px 36px; animation: slideUp 0.22s ease; }
   @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-  .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px; }
-  .modal h2 { font-family: var(--serif); font-size: 1.4rem; color: var(--sepia); margin-bottom: 18px; font-weight: normal; }
+  .modal-handle { width: 36px; height: 4px; background: rgba(139,111,71,0.25); border-radius: 2px; margin: 0 auto 20px; }
+  .modal h2 { font-family: var(--serif); font-size: 1.4rem; color: #8b6f47; margin-bottom: 18px; font-weight: normal; }
   .field { margin-bottom: 14px; }
-  .field label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--sepia); margin-bottom: 5px; }
-  .field input, .field textarea, .field select { width: 100%; background: white; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-family: var(--sans); font-size: 0.9rem; color: var(--ink); outline: none; transition: border-color 0.15s; -webkit-appearance: none; }
-  .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--sepia); }
+  .field label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.07em; color: #8b6f47; margin-bottom: 5px; }
+  .field input, .field textarea, .field select { width: 100%; background: white; border: 1px solid rgba(139,111,71,0.25); border-radius: 8px; padding: 10px 12px; font-family: var(--sans); font-size: 0.9rem; color: #1a1410; outline: none; -webkit-appearance: none; }
+  .field input:focus, .field textarea:focus, .field select:focus { border-color: #8b6f47; }
   .field textarea { resize: none; height: 68px; line-height: 1.5; }
-  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-  .btn-cancel { flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: transparent; font-family: var(--sans); font-size: 0.85rem; color: var(--sepia); cursor: pointer; }
-  .btn-save { flex: 2; padding: 12px; border: none; border-radius: 10px; background: var(--accent); font-family: var(--sans); font-size: 0.85rem; font-weight: 500; color: white; cursor: pointer; }
+  .btn-cancel { flex: 1; padding: 12px; border: 1px solid rgba(139,111,71,0.25); border-radius: 10px; background: transparent; font-family: var(--sans); font-size: 0.85rem; color: #8b6f47; cursor: pointer; }
+  .btn-save { flex: 2; padding: 12px; border: none; border-radius: 10px; background: #c0392b; font-family: var(--sans); font-size: 0.85rem; font-weight: 500; color: white; cursor: pointer; }
 
-  /* TOAST */
-  .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 9px 18px; border-radius: 20px; font-size: 0.78rem; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 400; white-space: nowrap; }
+  .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1410; color: #f5f0e8; padding: 9px 18px; border-radius: 20px; font-size: 0.78rem; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 400; white-space: nowrap; }
   .toast.show { opacity: 1; }
 </style>
 </head>
-<body>
+<body style="background:#f5f0e8;color:#1a1410">
 
 <div class="sticky-top">
   <header>
     <div class="header-top">
-      <h1>London List</h1>
-      <span class="stats-inline" id="stats-inline">…</span>
+      <div>
+        <h1>London List</h1>
+        <span class="stats-inline" id="stats-inline">…</span>
+      </div>
+      <button class="map-btn" id="map-all-btn" onclick="openMapAll()">🗺 Map</button>
     </div>
     <div class="area-picker" id="area-picker"></div>
   </header>
@@ -115,6 +136,7 @@
     <button class="type-btn active" onclick="setType('all',this)">All</button>
     <button class="type-btn" onclick="setType('food',this)">🍴 Food</button>
     <button class="type-btn" onclick="setType('museum',this)">🏛 Museums</button>
+    <button class="type-btn" onclick="setType('architecture',this)">🏗 Architecture</button>
     <button class="type-btn" onclick="setType('walk',this)">🚶 Walks</button>
     <button class="type-btn" onclick="setType('history',this)">📜 History</button>
     <button class="type-btn" onclick="setType('art',this)">🎨 Art</button>
@@ -127,7 +149,6 @@
 <div class="toast" id="toast"></div>
 <button class="fab" onclick="openModal()">+</button>
 
-<!-- MODAL -->
 <div class="modal-backdrop" id="modal-backdrop" onclick="backdropClick(event)">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -136,34 +157,23 @@
       <label>Name *</label>
       <input type="text" id="f-name" placeholder="e.g. Rochelle Canteen" autocomplete="off">
     </div>
-    <div class="field-row">
-      <div class="field">
-        <label>Area *</label>
-        <select id="f-area">
-          <option value="">— choose —</option>
-          <option value="__new__">+ New area…</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Category</label>
-        <select id="f-tag">
-          <option value="food">🍴 Food</option>
-          <option value="museum">🏛 Museum</option>
-          <option value="walk">🚶 Walk</option>
-          <option value="history">📜 History</option>
-          <option value="art">🎨 Art</option>
-          <option value="nature">🌿 Nature</option>
-        </select>
-      </div>
-    </div>
-    <div class="field" id="new-area-field" style="display:none">
-      <label>New area name</label>
-      <input type="text" id="f-new-area" placeholder="e.g. Bermondsey" autocomplete="off">
+    <div class="field">
+      <label>Category</label>
+      <select id="f-tag">
+        <option value="food">🍴 Food</option>
+        <option value="museum">🏛 Museum</option>
+        <option value="architecture">🏗 Architecture</option>
+        <option value="walk">🚶 Walk</option>
+        <option value="history">📜 History</option>
+        <option value="art">🎨 Art</option>
+        <option value="nature">🌿 Nature</option>
+      </select>
     </div>
     <div class="field">
-      <label>Note <span style="opacity:0.5;font-size:0.65rem;text-transform:none;letter-spacing:0">(address, tip, where you saw it)</span></label>
-      <textarea id="f-note" placeholder="e.g. Arnold Circus · via @LookupLondon"></textarea>
+      <label>Note <span style="opacity:0.5;font-size:0.65rem;text-transform:none;letter-spacing:0">(why visit · address · where you saw it)</span></label>
+      <textarea id="f-note" placeholder="e.g. Stunning 1930s interior · Arnold Circus · via @LookupLondon"></textarea>
     </div>
+    <div id="f-area-status" style="font-size:0.72rem;color:#8b6f47;font-style:italic;margin-bottom:8px;min-height:1.1em;"></div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
       <button class="btn-save" onclick="savePlace()">Save place</button>
@@ -172,6 +182,29 @@
 </div>
 
 <script>
+const AREA_COORDS = {
+  "City & Clerkenwell":        [51.5194, -0.1010],
+  "Holborn & Bloomsbury":      [51.5175, -0.1190],
+  "Covent Garden & Strand":    [51.5117, -0.1240],
+  "Soho & Chinatown":          [51.5130, -0.1310],
+  "Westminster & Pimlico":     [51.4975, -0.1357],
+  "South Bank & Waterloo":     [51.5055, -0.1132],
+  "Southwark & Elephant":      [51.4950, -0.0930],
+  "Kensington & Notting Hill": [51.5074, -0.1964],
+  "Chelsea":                   [51.4875, -0.1687],
+  "Chiswick & West":           [51.4927, -0.2682],
+  "Marylebone & Regent's Park":[51.5237, -0.1585],
+  "Kings Cross":               [51.5308, -0.1238],
+  "Islington":                 [51.5362, -0.1033],
+  "Finsbury Park & Holloway":  [51.5642, -0.1064],
+  "Stoke Newington":           [51.5636, -0.0740],
+  "Hackney & Bethnal Green":   [51.5362, -0.0555],
+  "Brixton & Tooting":         [51.4620, -0.1140],
+  "Peckham & Camberwell":      [51.4735, -0.0693],
+  "Greenwich & Deptford":      [51.4769, -0.0122],
+  "Anywhere (Underground)":    [51.5074, -0.1278],
+};
+
 const SEED = [
   { area: "City & Clerkenwell", name: "St Bartholomew Hospital Museum", note: "North Wing hall & staircase — Mon, Tue & first Sun of month", tags: ["museum","history"] },
   { area: "City & Clerkenwell", name: "Bunhill Row", note: "Named after burial mounds and windmills from the 1500s", tags: ["history"] },
@@ -184,7 +217,7 @@ const SEED = [
   { area: "Westminster & Pimlico", name: "Giro's Grave", note: "Waterloo Place — tomb of German ambassador's dog, electrocuted 1934. Inscribed 'the Nazi Dog'", tags: ["history"] },
   { area: "Westminster & Pimlico", name: "Garrison Chapel", note: "livinglondonhistory.com — traditional arts", tags: ["history","art"] },
   { area: "Westminster & Pimlico", name: "Taj Hotel courtyard Shakespeare frieze", note: "Buckingham Gate", tags: ["history"], visited: true },
-  { area: "Westminster & Pimlico", name: "Checkerboard House Estate", note: "Page Street, Pimlico", tags: ["history"], visited: true },
+  { area: "Westminster & Pimlico", name: "Checkerboard House Estate", note: "Page Street, Pimlico", tags: ["architecture"], visited: true },
   { area: "South Bank & Waterloo", name: "Morley Gallery — Canterbury Tales mural & mosaics", note: "Near Waterloo / Lambeth", tags: ["art"] },
   { area: "South Bank & Waterloo", name: "Giacometti's at Tate Modern", tags: ["art","museum"] },
   { area: "South Bank & Waterloo", name: "Cardinal Cap Alley", note: "Narrow gated alley by the Globe; named for Cardinal Beaufort's red hat", tags: ["history"] },
@@ -198,7 +231,7 @@ const SEED = [
   { area: "Chiswick & West", name: "Oldest Wisteria in Europe", note: "Fuller's Brewery, Chiswick", tags: ["nature"] },
   { area: "Marylebone & Regent's Park", name: "Regent's Park Elizabeth II Garden", tags: ["nature","walk"], visited: true },
   { area: "Kings Cross", name: "Kings Cross Audio Story", note: "kingscrossstory.kingscross.co.uk", tags: ["history","walk"] },
-  { area: "Kings Cross", name: "Standard Hotel", note: "By Kings Cross station", tags: ["art"] },
+  { area: "Kings Cross", name: "Standard Hotel", note: "By Kings Cross station", tags: ["architecture"] },
   { area: "Kings Cross", name: "Keystone Crescent", note: "By Kings Cross", tags: ["history"], visited: true },
   { area: "Islington", name: "Indian Veg Buffet", note: "Chapel Market", tags: ["food"] },
   { area: "Finsbury Park & Holloway", name: "JoJo's Kitchen", note: "Ethiopian — Blackstock Road, Finsbury Park", tags: ["food"] },
@@ -211,10 +244,10 @@ const SEED = [
   { area: "Hackney & Bethnal Green", name: "Pellicci Cafe", note: "Bethnal Green — legendary East End caff, Grade II listed interior", tags: ["food"] },
   { area: "Brixton & Tooting", name: "Maureen's Brixton Kitchen — Jerk Chicken", tags: ["food"], visited: true },
   { area: "Brixton & Tooting", name: "Dawat", note: "Tooting — kebab in naan, £2.49", tags: ["food"] },
-  { area: "Peckham & Camberwell", name: "Peckham Library", note: "Architecture Prize winner — striking orange canopy", tags: ["museum","art"], visited: true },
+  { area: "Peckham & Camberwell", name: "Peckham Library", note: "Architecture Prize winner — striking orange canopy", tags: ["architecture"], visited: true },
   { area: "Greenwich & Deptford", name: "Greenwich", tags: ["walk","history","museum"], visited: true },
   { area: "Greenwich & Deptford", name: "The Line Walk", note: "Docklands sculpture trail — Bill Nighy narration on Bloomberg Connects app", tags: ["walk","art"] },
-  { area: "Greenwich & Deptford", name: "Deptford Town Hall", note: "Near Greenwich — see Lookup London post", tags: ["history"] },
+  { area: "Greenwich & Deptford", name: "Deptford Town Hall", note: "Near Greenwich — see Lookup London post", tags: ["architecture","history"] },
   { area: "Anywhere (Underground)", name: "Mark Wallinger's Labyrinth", note: "270 enamel artworks — one at each Underground station; 150th anniversary, 2013", tags: ["art","walk"] },
   { area: "Anywhere (Underground)", name: "Cabmen's Shelters", note: "13 surviving green huts from 1875 — shelter and food for cab drivers", tags: ["history"] },
 ];
@@ -230,7 +263,10 @@ const AREA_ORDER = [
 ];
 
 const STORE_KEY = 'll-places-v2';
-const tagColors = { food:'tag-food', museum:'tag-museum', walk:'tag-walk', history:'tag-history', art:'tag-art', nature:'tag-nature' };
+const tagColors = {
+  food:'tag-food', museum:'tag-museum', architecture:'tag-architecture',
+  walk:'tag-walk', history:'tag-history', art:'tag-art', nature:'tag-nature'
+};
 
 function loadPlaces() {
   const stored = localStorage.getItem(STORE_KEY);
@@ -239,10 +275,8 @@ function loadPlaces() {
     id: 'seed-' + i, area: s.area, name: s.name, note: s.note || null,
     tags: s.tags || [], visited: s.visited || false,
   }));
-  savePlaces(places);
-  return places;
+  savePlaces(places); return places;
 }
-
 function savePlaces(p) { localStorage.setItem(STORE_KEY, JSON.stringify(p)); }
 
 let places = loadPlaces();
@@ -255,6 +289,39 @@ function allAreas() {
   return [...AREA_ORDER.filter(a => places.some(p => p.area === a)), ...extra];
 }
 
+// ── MAP ───────────────────────────────────────────────────────────────────────
+// Opens Google Maps with all visible to-do places as a search
+function openMapAll() {
+  const visible = places.filter(p => {
+    if (p.visited) return false;
+    if (activeArea !== 'all' && p.area !== activeArea) return false;
+    if (activeType !== 'all' && activeType !== 'visited') {
+      if (!(p.tags||[]).includes(activeType)) return false;
+    }
+    return true;
+  });
+
+  if (!visible.length) { showToast('No places to show on map'); return; }
+
+  // If single area selected, open a Maps search for that area
+  if (activeArea !== 'all') {
+    const coords = AREA_COORDS[activeArea];
+    if (coords) {
+      // Build a Maps search URL centred on the area with first place as query
+      const query = encodeURIComponent(visible[0].name + ', London');
+      window.open(`https://www.google.com/maps/search/${query}/@${coords[0]},${coords[1]},15z`, '_blank');
+      return;
+    }
+  }
+
+  // For all areas, open Maps search for London centred on the list
+  // Use the first unvisited place as anchor
+  const first = visible[0];
+  const query = encodeURIComponent(first.name + ', London');
+  window.open(`https://www.google.com/maps/search/${query}/@51.505,-0.11,12z`, '_blank');
+}
+
+// ── AREA PICKER ───────────────────────────────────────────────────────────────
 function buildAreaPicker() {
   const picker = document.getElementById('area-picker');
   picker.innerHTML = '';
@@ -266,8 +333,7 @@ function buildAreaPicker() {
   allAreas().forEach(area => {
     const btn = document.createElement('button');
     btn.className = 'area-pill' + (activeArea === area ? ' active' : '');
-    btn.textContent = area;
-    btn.dataset.area = area;
+    btn.textContent = area; btn.dataset.area = area;
     btn.onclick = () => setArea(area, btn);
     picker.appendChild(btn);
   });
@@ -290,10 +356,11 @@ function setType(type, btn) {
 function itemVisible(p) {
   if (activeType === 'visited') return p.visited;
   if (p.visited) return false;
-  if (activeType !== 'all' && !(p.tags || []).includes(activeType)) return false;
+  if (activeType !== 'all' && !(p.tags||[]).includes(activeType)) return false;
   return true;
 }
 
+// ── RENDER ────────────────────────────────────────────────────────────────────
 function render() {
   const container = document.getElementById('list-container');
   container.innerHTML = '';
@@ -317,17 +384,14 @@ function render() {
     const areaPlaces = places.filter(p => p.area === area && itemVisible(p));
     if (!areaPlaces.length) return;
     anyItems = true;
-
     const sec = document.createElement('div');
     sec.className = 'area-section';
-
     if (activeArea === 'all') {
       const hdr = document.createElement('div');
       hdr.className = 'area-header';
       hdr.innerHTML = `<span class="area-name">${area}</span><span class="area-count">${areaPlaces.length} to go</span>`;
       sec.appendChild(hdr);
     }
-
     const grid = document.createElement('div');
     grid.className = 'items-grid';
     areaPlaces.forEach(p => renderItem(grid, p));
@@ -344,11 +408,9 @@ function render() {
 function renderItem(grid, p) {
   const el = document.createElement('div');
   el.className = `item${p.visited ? ' visited' : ''}`;
-
-  const tagHtml = (p.tags || []).slice(0,1).map(t =>
+  const tagHtml = (p.tags||[]).slice(0,1).map(t =>
     `<span class="item-tag ${tagColors[t]||''}">${t}</span>`
   ).join('');
-
   el.innerHTML = `
     <div class="item-check">${p.visited ? '✓' : ''}</div>
     <div class="item-body">
@@ -357,24 +419,19 @@ function renderItem(grid, p) {
     </div>
     ${tagHtml}
   `;
-
   el.addEventListener('click', () => toggleVisited(p.id));
-
   let pressTimer;
   el.addEventListener('pointerdown', () => {
     pressTimer = setTimeout(() => {
       if (confirm(`Delete "${p.name}"?`)) {
         places = places.filter(x => x.id !== p.id);
-        savePlaces(places);
-        buildAreaPicker();
-        render();
+        savePlaces(places); buildAreaPicker(); render();
       }
     }, 700);
   });
   el.addEventListener('pointerup',    () => clearTimeout(pressTimer));
   el.addEventListener('pointermove',  () => clearTimeout(pressTimer));
   el.addEventListener('pointerleave', () => clearTimeout(pressTimer));
-
   grid.appendChild(el);
 }
 
@@ -390,53 +447,57 @@ function toggleVisited(id) {
 let toastTimer;
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
+  t.textContent = msg; t.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
 }
 
+// ── MODAL ─────────────────────────────────────────────────────────────────────
 function openModal() {
-  const sel = document.getElementById('f-area');
-  sel.innerHTML = '<option value="">— choose —</option>';
-  allAreas().forEach(a => {
-    const opt = document.createElement('option');
-    opt.value = a; opt.textContent = a;
-    if (activeArea !== 'all' && a === activeArea) opt.selected = true;
-    sel.appendChild(opt);
-  });
-  const newOpt = document.createElement('option');
-  newOpt.value = '__new__'; newOpt.textContent = '+ New area…';
-  sel.appendChild(newOpt);
-  ['f-name','f-note','f-new-area'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('new-area-field').style.display = 'none';
+  ['f-name','f-note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-area-status').textContent = '';
   document.getElementById('modal-backdrop').classList.add('open');
   setTimeout(() => document.getElementById('f-name').focus(), 250);
 }
-
 function closeModal() { document.getElementById('modal-backdrop').classList.remove('open'); }
 function backdropClick(e) { if (e.target === document.getElementById('modal-backdrop')) closeModal(); }
 
-document.getElementById('f-area').addEventListener('change', function() {
-  const show = this.value === '__new__';
-  document.getElementById('new-area-field').style.display = show ? 'block' : 'none';
-  if (show) document.getElementById('f-new-area').focus();
-});
+async function geocodeToArea(name) {
+  const status = document.getElementById('f-area-status');
+  status.textContent = 'Finding location…';
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(name + ', London')}&format=json&limit=1&countrycodes=gb`;
+    const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+    const data = await res.json();
+    if (!data.length) { status.textContent = 'Not found — saving to To Sort'; return 'To Sort'; }
+    const lat = parseFloat(data[0].lat);
+    const lon = parseFloat(data[0].lon);
+    let best = 'To Sort', bestDist = Infinity;
+    for (const [area, coords] of Object.entries(AREA_COORDS)) {
+      if (area === 'Anywhere (Underground)') continue;
+      const d = Math.hypot(lat - coords[0], lon - coords[1]);
+      if (d < bestDist) { bestDist = d; best = area; }
+    }
+    status.textContent = `📍 ${best}`;
+    return best;
+  } catch(e) {
+    status.textContent = 'Could not locate — saving to To Sort';
+    return 'To Sort';
+  }
+}
 
-function savePlace() {
+async function savePlace() {
   const name = document.getElementById('f-name').value.trim();
-  let area = document.getElementById('f-area').value;
-  if (area === '__new__') area = document.getElementById('f-new-area').value.trim();
   const note = document.getElementById('f-note').value.trim();
   const tag  = document.getElementById('f-tag').value;
   if (!name) { document.getElementById('f-name').focus(); return; }
-  if (!area) { document.getElementById('f-area').focus(); return; }
+  const btn = document.querySelector('.btn-save');
+  btn.textContent = 'Locating…'; btn.disabled = true;
+  const area = await geocodeToArea(name);
+  btn.textContent = 'Save place'; btn.disabled = false;
   places.push({ id: Date.now().toString(), area, name, note: note || null, tags: [tag], visited: false });
-  savePlaces(places);
-  closeModal();
-  activeArea = area;
-  buildAreaPicker();
-  render();
+  savePlaces(places); closeModal(); activeArea = area;
+  buildAreaPicker(); render();
   setTimeout(() => {
     const pill = document.querySelector(`.area-pill[data-area="${CSS.escape(area)}"]`);
     if (pill) pill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
