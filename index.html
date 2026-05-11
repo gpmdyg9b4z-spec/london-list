@@ -335,6 +335,7 @@ function openMapPanel() {
     const script = document.createElement('script');
     script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
     script.onload = () => initMap(visible);
+    script.onerror = () => showToast('Map failed to load — check connection');
     document.head.appendChild(script);
   } else {
     initMap(visible);
@@ -342,6 +343,9 @@ function openMapPanel() {
 }
 
 function closeMapPanel() {
+  if (leafletMap) { leafletMap.stopLocate(); }
+  window._locationMarker = null;
+  window._locationAccuracy = null;
   document.getElementById('map-panel').classList.remove('open');
   document.body.style.overflow = '';
 }
@@ -376,8 +380,8 @@ function initMap(visible) {
 
     const icon = L.divIcon({
       className: '',
-      html: `<div style="width:11px;height:11px;border-radius:50%;background:${color};border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.35)"></div>`,
-      iconSize: [11,11], iconAnchor: [5,5]
+      html: `<div style="width:18px;height:18px;border-radius:50%;background:${color};border:2.5px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></div>`,
+      iconSize: [18,18], iconAnchor: [9,9]
     });
 
     const m = L.marker([lat, lon], { icon }).addTo(leafletMap);
@@ -392,6 +396,29 @@ function initMap(visible) {
 
   if (bounds.length) {
     leafletMap.fitBounds(bounds, { padding: [30, 30] });
+  }
+
+  // Show live location as pulsing blue dot
+  if (navigator.geolocation) {
+    leafletMap.locate({ watch: true, enableHighAccuracy: true });
+    leafletMap.on('locationfound', function(e) {
+      if (window._locationMarker) {
+        window._locationMarker.setLatLng(e.latlng);
+        window._locationAccuracy.setLatLng(e.latlng).setRadius(e.accuracy);
+      } else {
+        window._locationAccuracy = L.circle(e.latlng, {
+          radius: e.accuracy,
+          color: '#1a73e8', fillColor: '#1a73e8', fillOpacity: 0.1, weight: 1
+        }).addTo(leafletMap);
+        const locIcon = L.divIcon({
+          className: '',
+          html: `<div style="width:16px;height:16px;border-radius:50%;background:#1a73e8;border:3px solid white;box-shadow:0 2px 8px rgba(26,115,232,0.6);animation:pulse 2s infinite"></div>
+                 <style>@keyframes pulse{0%,100%{box-shadow:0 2px 8px rgba(26,115,232,0.6)}50%{box-shadow:0 2px 16px rgba(26,115,232,0.9)}}</style>`,
+          iconSize: [16,16], iconAnchor: [8,8]
+        });
+        window._locationMarker = L.marker(e.latlng, { icon: locIcon, zIndexOffset: 1000 }).addTo(leafletMap);
+      }
+    });
   }
 
   setTimeout(() => leafletMap.invalidateSize(), 150);
@@ -512,10 +539,7 @@ function renderItem(grid, p) {
   let pressTimer;
   el.addEventListener('pointerdown', () => {
     pressTimer = setTimeout(() => {
-      if (confirm(`Delete "${p.name}"?`)) {
-        places = places.filter(x => x.id !== p.id);
-        savePlaces(places); buildAreaPicker(); render();
-      }
+      openEditModal(p.id);
     }, 700);
   });
   el.addEventListener('pointerup',    () => clearTimeout(pressTimer));
@@ -593,8 +617,114 @@ async function savePlace() {
   }, 120);
 }
 
+
+// ── EDIT MODAL ────────────────────────────────────────────────────────────────
+let editingId = null;
+
+function openEditModal(id) {
+  const p = places.find(x => x.id === id);
+  if (!p) return;
+  editingId = id;
+
+  document.getElementById('e-name').value = p.name;
+  document.getElementById('e-note').value = p.note || '';
+
+  // Populate area select
+  const sel = document.getElementById('e-area');
+  sel.innerHTML = '';
+  const areas = [...new Set([...AREA_ORDER, ...places.map(x => x.area)])];
+  areas.forEach(a => {
+    const opt = document.createElement('option');
+    opt.value = a; opt.textContent = a;
+    if (a === p.area) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  // Add To Sort if not there
+  if (!areas.includes('To Sort')) {
+    const opt = document.createElement('option');
+    opt.value = 'To Sort'; opt.textContent = 'To Sort';
+    if (p.area === 'To Sort') opt.selected = true;
+    sel.appendChild(opt);
+  }
+
+  // Set tag
+  const tagSel = document.getElementById('e-tag');
+  const currentTag = (p.tags||[])[0] || 'history';
+  [...tagSel.options].forEach(o => { o.selected = o.value === currentTag; });
+
+  document.getElementById('edit-modal-backdrop').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal-backdrop').classList.remove('open');
+  editingId = null;
+}
+
+function backdropClickEdit(e) {
+  if (e.target === document.getElementById('edit-modal-backdrop')) closeEditModal();
+}
+
+function saveEdit() {
+  const p = places.find(x => x.id === editingId);
+  if (!p) return;
+  p.name = document.getElementById('e-name').value.trim() || p.name;
+  p.area = document.getElementById('e-area').value;
+  p.tags = [document.getElementById('e-tag').value];
+  p.note = document.getElementById('e-note').value.trim() || null;
+  savePlaces(places);
+  closeEditModal();
+  activeArea = p.area;
+  buildAreaPicker();
+  render();
+}
+
+function deleteFromEdit() {
+  if (!confirm('Delete this place?')) return;
+  places = places.filter(x => x.id !== editingId);
+  savePlaces(places);
+  closeEditModal();
+  buildAreaPicker();
+  render();
+}
 buildAreaPicker();
 render();
 </script>
+
+<!-- EDIT MODAL -->
+<div class="modal-backdrop" id="edit-modal-backdrop" onclick="backdropClickEdit(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>Edit place</h2>
+    <div class="field">
+      <label>Name</label>
+      <input type="text" id="e-name" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Area</label>
+      <select id="e-area"></select>
+    </div>
+    <div class="field">
+      <label>Category</label>
+      <select id="e-tag">
+        <option value="food">🍴 Food</option>
+        <option value="museum">🏛 Museum</option>
+        <option value="architecture">🏗 Architecture</option>
+        <option value="walk">🚶 Walk</option>
+        <option value="history">📜 History</option>
+        <option value="art">🎨 Art</option>
+        <option value="nature">🌿 Nature</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Note</label>
+      <textarea id="e-note"></textarea>
+    </div>
+    <div class="modal-actions" style="justify-content:space-between">
+      <button class="btn-cancel" onclick="deleteFromEdit()" style="color:#c0392b;border-color:#c0392b">Delete</button>
+      <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+      <button class="btn-save" onclick="saveEdit()" style="flex:none;padding:12px 24px">Save</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
