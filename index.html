@@ -2156,8 +2156,11 @@ async function readPlannerFile(input) {
   if (file.size > 5 * 1024 * 1024) { showToast('That file is too big to be planner data'); return; }
   let d;
   try { d = JSON.parse(await file.text()); } catch (e) { showToast('That file isn’t valid JSON'); return; }
+  if (d && (d.app === 'london-list' || Array.isArray(d.places))) {
+    showToast('That’s a backup of your places. Planner data is planner.json in iCloud Drive › London List.'); return;
+  }
   if (!d || d.app !== 'london-list-planner' || !d.areas || typeof d.areas !== 'object') {
-    showToast('That isn’t a planner file — choose planner.json'); return;
+    showToast('That isn’t planner data. Choose planner.json in iCloud Drive › London List.'); return;
   }
   if (!storageSet(PLANNER_KEY, JSON.stringify(d))) { showToast('Couldn’t save the planner data — storage is full'); return; }
   planner = d;
