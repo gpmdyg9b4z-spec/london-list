@@ -108,7 +108,7 @@
   .modal h2 { font-family: var(--serif); font-size: 1.4rem; color: #8b6f47; margin-bottom: 18px; font-weight: normal; }
   .field { margin-bottom: 14px; }
   .field label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.07em; color: #8b6f47; margin-bottom: 5px; }
-  .field input, .field textarea, .field select { width: 100%; background: white; border: 1px solid rgba(139,111,71,0.25); border-radius: 8px; padding: 10px 12px; font-family: var(--sans); font-size: 0.9rem; color: #1a1410; outline: none; -webkit-appearance: none; }
+  .field input, .field textarea, .field select { width: 100%; background: white; border: 1px solid rgba(139,111,71,0.25); border-radius: 8px; padding: 10px 12px; font-family: var(--sans); font-size: 16px; color: #1a1410; outline: none; -webkit-appearance: none; }
   .field input:focus, .field textarea:focus, .field select:focus { border-color: #8b6f47; }
   .field textarea { resize: none; height: 68px; line-height: 1.5; }
   .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
@@ -123,8 +123,35 @@
   .map-panel-header h2 { font-family: Georgia, serif; font-size: 1.1rem; font-weight: normal; }
   .map-close { background: rgba(255,255,255,0.12); border: none; color: #f5f0e8; padding: 6px 14px; border-radius: 14px; font-size: 0.8rem; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   #the-map { flex: 1; width: 100%; }
-  .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1410; color: #f5f0e8; padding: 9px 18px; border-radius: 20px; font-size: 0.78rem; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 400; white-space: nowrap; }
+  .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1410; color: #f5f0e8; padding: 9px 18px; border-radius: 20px; font-size: 0.78rem; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 400; max-width: calc(100vw - 32px); width: max-content; text-align: center; line-height: 1.35; }
   .toast.show { opacity: 1; }
+
+  /* MODAL scrolls when the keyboard is up or the picker is long */
+  .modal { max-height: 92vh; max-height: 92dvh; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+
+  /* LOCATION PICKER */
+  .loc-picker [hidden] { display: none !important; }
+  .loc-picker input.loc-q { font-size: 16px; }
+  .loc-status { font-size: 0.75rem; color: #6e5636; margin: 6px 2px 0; min-height: 1em; }
+  .loc-results { display: flex; flex-direction: column; margin-top: 4px; border-radius: 8px; overflow: hidden; }
+  .loc-results:not(:empty) { border: 1px solid rgba(139,111,71,0.25); background: #fff; }
+  .loc-result { display: block; width: 100%; text-align: left; background: #fff; border: none; border-bottom: 1px solid rgba(139,111,71,0.15); padding: 10px 12px; min-height: 48px; font-family: var(--sans); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .loc-result:last-child { border-bottom: none; }
+  .loc-result:active { background: rgba(139,111,71,0.09); }
+  .loc-result-name { display: block; font-size: 0.92rem; color: #1a1410; font-weight: 500; }
+  .loc-result-addr { display: block; font-size: 0.75rem; color: #6e5636; margin-top: 2px; }
+  .loc-actions { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 4px; }
+  .loc-link { background: none; border: none; color: #a5281b; font-family: var(--sans); font-size: 0.82rem; padding: 10px 2px; min-height: 44px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .loc-chosen { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid rgba(139,111,71,0.25); border-radius: 8px; padding: 6px 6px 6px 12px; }
+  .loc-chosen-body { flex: 1; min-width: 0; }
+  .loc-chosen-name { font-size: 0.9rem; color: #1a1410; font-weight: 500; }
+  .loc-chosen-addr { font-size: 0.75rem; color: #6e5636; margin-top: 2px; overflow-wrap: anywhere; }
+  .item-flag { display: inline-block; font-size: 0.62rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #a5281b; border: 1px solid rgba(192,57,43,0.4); border-radius: 8px; padding: 0 6px; margin-left: 4px; vertical-align: 1px; }
+
+  /* MAP BAR */
+  .map-bar { background: #2a211b; color: #f5f0e8; font-size: 0.78rem; line-height: 1.4; padding: 8px 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; flex-shrink: 0; }
+  .map-bar[hidden] { display: none; }
+  .map-bar-btn { background: #c0392b; color: #fff; border: none; border-radius: 16px; padding: 8px 14px; min-height: 36px; font-family: var(--sans); font-size: 0.78rem; font-weight: 600; cursor: pointer; }
   .toast.has-action { pointer-events: auto; display: flex; align-items: center; gap: 14px; padding: 6px 6px 6px 18px; }
   .toast-action { background: rgba(255,255,255,0.14); border: none; color: #f5f0e8; font-family: var(--sans); font-size: 0.78rem; font-weight: 600; padding: 8px 14px; border-radius: 16px; min-height: 36px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 
@@ -152,6 +179,7 @@
     <h2 id="map-panel-title">All places</h2>
     <button class="map-close" onclick="closeMapPanel()">✕ Close</button>
   </div>
+  <div class="map-bar" id="map-bar" hidden></div>
   <div id="the-map"></div>
 </div>
 
@@ -213,8 +241,16 @@
     <div class="modal-handle"></div>
     <h2>Add a place</h2>
     <div class="field">
-      <label>Name *</label>
-      <input type="text" id="f-name" placeholder="e.g. Rochelle Canteen" autocomplete="off">
+      <label for="f-name">Name *</label>
+      <input type="text" id="f-name" placeholder="e.g. Rochelle Canteen" autocomplete="off" autocapitalize="words">
+    </div>
+    <div class="field">
+      <label>Location</label>
+      <div id="f-loc" class="loc-picker"></div>
+    </div>
+    <div class="field">
+      <label for="f-area">Area</label>
+      <select id="f-area"></select>
     </div>
     <div class="field">
       <label>Category</label>
@@ -232,10 +268,50 @@
       <label>Note <span style="opacity:0.5;font-size:0.65rem;text-transform:none;letter-spacing:0">(why visit · address · where you saw it)</span></label>
       <textarea id="f-note" placeholder="e.g. Stunning 1930s interior · Arnold Circus · via @LookupLondon"></textarea>
     </div>
-    <div id="f-area-status" style="font-size:0.72rem;color:#8b6f47;font-style:italic;margin-bottom:8px;min-height:1.1em;"></div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
       <button class="btn-save" onclick="savePlace()">Save place</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-backdrop" id="edit-modal-backdrop" onclick="backdropClickEdit(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>Edit place</h2>
+    <div class="field">
+      <label for="e-name">Name</label>
+      <input type="text" id="e-name" autocomplete="off" autocapitalize="words">
+    </div>
+    <div class="field">
+      <label>Location</label>
+      <div id="e-loc" class="loc-picker"></div>
+    </div>
+    <div class="field">
+      <label for="e-area">Area</label>
+      <select id="e-area"></select>
+    </div>
+    <div class="field">
+      <label>Category</label>
+      <select id="e-tag">
+        <option value="food">🍴 Food</option>
+        <option value="museum">🏛 Museum</option>
+        <option value="architecture">🏗 Architecture</option>
+        <option value="walk">🚶 Walk</option>
+        <option value="history">📜 History</option>
+        <option value="art">🎨 Art</option>
+        <option value="nature">🌿 Nature</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Note</label>
+      <textarea id="e-note"></textarea>
+    </div>
+    <div class="modal-actions" style="justify-content:space-between">
+      <button class="btn-cancel" onclick="deleteFromEdit()" style="color:#c0392b;border-color:#c0392b">Delete</button>
+      <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+      <button class="btn-save" onclick="saveEdit()" style="flex:none;padding:12px 24px">Save</button>
     </div>
   </div>
 </div>
@@ -254,6 +330,9 @@ const AREA_COORDS = {
   "Chiswick & West":           [51.4927, -0.2682],
   "Marylebone & Regent's Park":[51.5237, -0.1585],
   "Kings Cross":               [51.5308, -0.1238],
+  "Camden & Primrose Hill":    [51.5410, -0.1460],
+  "Hampstead & Highgate":      [51.5620, -0.1620],
+  "Shoreditch & Whitechapel":  [51.5220, -0.0720],
   "Islington":                 [51.5362, -0.1033],
   "Finsbury Park & Holloway":  [51.5642, -0.1064],
   "Stoke Newington":           [51.5636, -0.0740],
@@ -312,10 +391,11 @@ const SEED = [
 ];
 
 const AREA_ORDER = [
-  "City & Clerkenwell","Holborn & Bloomsbury","Covent Garden & Strand",
+  "City & Clerkenwell","Shoreditch & Whitechapel","Holborn & Bloomsbury","Covent Garden & Strand",
   "Soho & Chinatown","Westminster & Pimlico","South Bank & Waterloo",
   "Southwark & Elephant","Kensington & Notting Hill","Chelsea",
   "Chiswick & West","Marylebone & Regent's Park","Kings Cross",
+  "Camden & Primrose Hill","Hampstead & Highgate",
   "Islington","Finsbury Park & Holloway","Stoke Newington",
   "Hackney & Bethnal Green","Brixton & Tooting","Peckham & Camberwell",
   "Greenwich & Deptford","Anywhere (Underground)"
@@ -327,10 +407,14 @@ const tagColors = {
 };
 
 // ── STORAGE ───────────────────────────────────────────────────────────────────
-// Saved shape (schema v3): { version: 3, savedAt: ISO string, places: [...] }
+// Saved shape (schema v4): { version: 4, savedAt: ISO string, places: [...] }
+// A place: { id, area, name, note, tags[], visited, lat, lon, address, locCheck }
+//   lat/lon/address are null when the place has no location yet;
+//   locCheck is true when an automatic lookup couldn't decide and you need to choose.
+// v3 had no location fields; v4 adds them (as null) on load.
 // v2 (key 'll-places-v2') was a bare array of places; it is migrated on first
 // load and the old key is left untouched as a fallback copy.
-const SCHEMA_VERSION = 3;
+const SCHEMA_VERSION = 4;
 const STORE_KEY      = 'll-data';
 const LEGACY_KEYS    = ['ll-places-v2'];
 const BACKUP_KEY     = 'll-backup';       // copy of the list taken before an import
@@ -374,8 +458,22 @@ function normalisePlace(raw) {
     note: cleanText(raw.note, MAX_NOTE) || null,
     tags,
     visited: raw.visited === true,
+    ...cleanLocation(raw),
   };
 }
+
+function cleanLocation(raw) {
+  const lat = Number(raw.lat), lon = Number(raw.lon);
+  const ok = raw.lat !== null && raw.lat !== undefined && raw.lon !== null && raw.lon !== undefined &&
+    Number.isFinite(lat) && Number.isFinite(lon) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180;
+  return {
+    lat: ok ? Math.round(lat * 1e6) / 1e6 : null,
+    lon: ok ? Math.round(lon * 1e6) / 1e6 : null,
+    address: ok ? (cleanText(raw.address, 200) || null) : null,
+    locCheck: !ok && raw.locCheck === true,
+  };
+}
+function hasLocation(p) { return Number.isFinite(p.lat) && Number.isFinite(p.lon); }
 
 // Normalise a list: drop unusable records and make sure every id is unique.
 function normaliseList(list) {
@@ -406,15 +504,16 @@ function migrate(data) {
   if (version > SCHEMA_VERSION) {
     throw new Error('Saved by a newer version of London List');
   }
-  // Future migrations go here, e.g. if (version < 4) list = list.map(addCoords);
+  // v3 → v4: location fields are added as null by normalisePlace(); nothing else changes.
+  // Future migrations go here, e.g. if (version < 5) list = list.map(...);
   return normaliseList(list);
 }
 
 function seedPlaces() {
-  return SEED.map((s, i) => ({
+  return normaliseList(SEED.map((s, i) => ({
     id: 'seed-' + i, area: s.area, name: s.name, note: s.note || null,
     tags: s.tags || [], visited: s.visited || false,
-  }));
+  }))).places;
 }
 
 function loadPlaces() {
@@ -432,8 +531,15 @@ function loadPlaces() {
     return seeded;
   }
   try {
-    const { places: loaded } = migrate(JSON.parse(raw));
-    if (fromLegacy) savePlaces(loaded); // write the v3 copy; the legacy key stays as-is
+    const parsed = JSON.parse(raw);
+    const { places: loaded } = migrate(parsed);
+    const storedVersion = Array.isArray(parsed) ? 2 : Number(parsed.version) || 2;
+    if (fromLegacy || storedVersion < SCHEMA_VERSION) {
+      // Keep the pre-upgrade data once, then save in the current format.
+      const keepKey = 'll-before-v' + SCHEMA_VERSION;
+      if (!fromLegacy && storageGet(keepKey) === null) storageSet(keepKey, raw);
+      savePlaces(loaded); // (a legacy key stays as-is)
+    }
     return loaded;
   } catch (e) {
     // Keep the unreadable data aside (without replacing an earlier copy) and block saving.
@@ -468,25 +574,27 @@ function allAreas() {
 // ── MAP PANEL ─────────────────────────────────────────────────────────────────
 let leafletMap = null;
 let leafletMarkers = [];
+let locationMarker = null, locationAccuracy = null;
+let mapVisible = [];
 
-function openMapPanel() {
-  const visible = places.filter(p => {
+function filteredPlaces() {
+  return places.filter(p => {
     if (p.visited) return false;
     if (activeArea !== 'all' && p.area !== activeArea) return false;
-    if (activeType !== 'all' && activeType !== 'visited') {
-      if (!(p.tags||[]).includes(activeType)) return false;
-    }
+    if (activeType !== 'all' && activeType !== 'visited' && !(p.tags||[]).includes(activeType)) return false;
     return true;
   });
+}
 
+function openMapPanel() {
+  const visible = filteredPlaces();
   if (!visible.length) { showToast('No places to show'); return; }
-
-  const title = activeArea !== 'all' ? activeArea : `${visible.length} places`;
-  document.getElementById('map-panel-title').textContent = title;
+  mapVisible = visible;
+  document.getElementById('map-panel-title').textContent = activeArea !== 'all' ? activeArea : 'All places';
   document.getElementById('map-panel').classList.add('open');
   document.body.style.overflow = 'hidden';
+  renderMapBar();
 
-  // Load Leaflet if not already loaded
   if (!window.L) {
     const css = document.createElement('link');
     css.rel = 'stylesheet';
@@ -494,18 +602,21 @@ function openMapPanel() {
     document.head.appendChild(css);
     const script = document.createElement('script');
     script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-    script.onload = () => initMap(visible);
+    script.onload = () => initMap();
     script.onerror = () => showToast('Map failed to load — check connection');
     document.head.appendChild(script);
   } else {
-    initMap(visible);
+    initMap();
   }
 }
 
 function closeMapPanel() {
-  if (leafletMap) { leafletMap.stopLocate(); }
-  window._locationMarker = null;
-  window._locationAccuracy = null;
+  if (leafletMap) {
+    leafletMap.stopLocate();
+    if (locationMarker) leafletMap.removeLayer(locationMarker);
+    if (locationAccuracy) leafletMap.removeLayer(locationAccuracy);
+  }
+  locationMarker = locationAccuracy = null;
   document.getElementById('map-panel').classList.remove('open');
   document.body.style.overflow = '';
 }
@@ -515,73 +626,184 @@ const tagDot = {
   walk:'#2a6e40', history:'#b03020', art:'#6a1a90', nature:'#2a6e40'
 };
 
-function jitter() { return (Math.random() - 0.5) * 0.006; }
+function mapLinks(p) {
+  const ll = `${p.lat},${p.lon}`;
+  return {
+    apple: `https://maps.apple.com/?ll=${ll}&q=${encodeURIComponent(p.name)}`,
+    google: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ll)}`,
+  };
+}
 
-function initMap(visible) {
+function onLocationFound(e) {
+  if (locationMarker) {
+    locationMarker.setLatLng(e.latlng);
+    locationAccuracy.setLatLng(e.latlng).setRadius(e.accuracy);
+    return;
+  }
+  locationAccuracy = L.circle(e.latlng, {
+    radius: e.accuracy, color: '#1a73e8', fillColor: '#1a73e8', fillOpacity: 0.1, weight: 1
+  }).addTo(leafletMap);
+  const locIcon = L.divIcon({
+    className: '',
+    html: `<div style="width:16px;height:16px;border-radius:50%;background:#1a73e8;border:3px solid white;box-shadow:0 2px 8px rgba(26,115,232,0.6)"></div>`,
+    iconSize: [16,16], iconAnchor: [8,8]
+  });
+  locationMarker = L.marker(e.latlng, { icon: locIcon, zIndexOffset: 1000 }).addTo(leafletMap);
+}
+
+function initMap() {
   if (!leafletMap) {
     leafletMap = L.map('the-map');
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap'
     }).addTo(leafletMap);
-  } else {
-    leafletMarkers.forEach(m => leafletMap.removeLayer(m));
-    leafletMarkers = [];
+    leafletMap.on('locationfound', onLocationFound); // registered once, not on every open
   }
+  drawMarkers();
+  if (navigator.geolocation) leafletMap.locate({ watch: true, enableHighAccuracy: true });
+  setTimeout(() => leafletMap.invalidateSize(), 150);
+}
 
+function drawMarkers() {
+  if (!leafletMap) return;
+  leafletMarkers.forEach(m => leafletMap.removeLayer(m));
+  leafletMarkers = [];
   const bounds = [];
-
-  visible.forEach(p => {
-    const base = AREA_COORDS[p.area] || [51.505, -0.11];
-    const lat = base[0] + jitter();
-    const lon = base[1] + jitter();
+  mapVisible.filter(hasLocation).forEach(p => {
     const tag = (p.tags||[])[0] || 'history';
     const color = tagDot[tag] || '#8b6f47';
-    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name + ' London')}`;
-
+    const links = mapLinks(p);
     const icon = L.divIcon({
       className: '',
       html: `<div style="width:18px;height:18px;border-radius:50%;background:${color};border:2.5px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></div>`,
       iconSize: [18,18], iconAnchor: [9,9]
     });
-
-    const m = L.marker([lat, lon], { icon }).addTo(leafletMap);
-    m.bindPopup(`<div style="font-family:-apple-system,sans-serif">
-      <div style="font-weight:600;font-size:0.85rem;color:#1a1410;margin-bottom:3px">${esc(p.name)}</div>
-      ${p.note ? `<div style="font-size:0.73rem;color:#8b6f47;font-style:italic;margin-bottom:5px">${esc(p.note)}</div>` : ''}
-      <a href="${esc(mapsUrl)}" target="_blank" rel="noopener" style="color:#c0392b;font-size:0.78rem;font-weight:600;text-decoration:none">Open in Google Maps →</a>
+    const m = L.marker([p.lat, p.lon], { icon }).addTo(leafletMap);
+    m.bindPopup(`<div style="font-family:-apple-system,sans-serif;min-width:170px">
+      <div style="font-weight:600;font-size:0.9rem;color:#1a1410;margin-bottom:3px">${esc(p.name)}</div>
+      ${p.address ? `<div style="font-size:0.75rem;color:#6e5636;margin-bottom:4px">${esc(p.address)}</div>` : ''}
+      ${p.note ? `<div style="font-size:0.75rem;color:#6e5636;font-style:italic;margin-bottom:8px">${esc(p.note)}</div>` : ''}
+      <div style="display:flex;gap:14px">
+        <a href="${esc(links.apple)}" target="_blank" rel="noopener" style="color:#c0392b;font-size:0.85rem;font-weight:600;text-decoration:none;padding:6px 0">Apple Maps</a>
+        <a href="${esc(links.google)}" target="_blank" rel="noopener" style="color:#c0392b;font-size:0.85rem;font-weight:600;text-decoration:none;padding:6px 0">Google Maps</a>
+      </div>
     </div>`);
     leafletMarkers.push(m);
-    bounds.push([lat, lon]);
+    bounds.push([p.lat, p.lon]);
   });
+  if (bounds.length === 1) leafletMap.setView(bounds[0], 15);
+  else if (bounds.length) leafletMap.fitBounds(bounds, { padding: [30, 30], maxZoom: 16 });
+  else leafletMap.fitBounds([[LONDON_BBOX[1], LONDON_BBOX[0]], [LONDON_BBOX[3], LONDON_BBOX[2]]]);
+}
 
-  if (bounds.length) {
-    leafletMap.fitBounds(bounds, { padding: [30, 30] });
+// The strip under the map title: how many places are missing and a way to find them.
+function renderMapBar() {
+  const bar = document.getElementById('map-bar');
+  bar.innerHTML = '';
+  if (findingLocations) { bar.textContent = findingLocations; bar.hidden = false; return; }
+  const located = mapVisible.filter(hasLocation).length;
+  const missing = mapVisible.filter(p => !hasLocation(p) && p.area !== 'Anywhere (Underground)');
+  const toCheck = missing.filter(p => p.locCheck).length;
+  const toFind = missing.length - toCheck;
+  bar.hidden = !missing.length;
+  if (!missing.length) return;
+  const text = document.createElement('span');
+  text.textContent = `${located} of ${located + missing.length} on the map.` +
+    (toCheck ? ` ${toCheck} ${toCheck === 1 ? 'needs' : 'need'} you to choose (marked “Location?” in the list).` : '');
+  bar.appendChild(text);
+  if (toFind) {
+    const b = document.createElement('button');
+    b.className = 'map-bar-btn';
+    b.textContent = `Find ${toFind} location${toFind !== 1 ? 's' : ''}`;
+    b.onclick = findLocations;
+    bar.appendChild(b);
   }
+}
 
-  // Show live location as pulsing blue dot
-  if (navigator.geolocation) {
-    leafletMap.locate({ watch: true, enableHighAccuracy: true });
-    leafletMap.on('locationfound', function(e) {
-      if (window._locationMarker) {
-        window._locationMarker.setLatLng(e.latlng);
-        window._locationAccuracy.setLatLng(e.latlng).setRadius(e.accuracy);
-      } else {
-        window._locationAccuracy = L.circle(e.latlng, {
-          radius: e.accuracy,
-          color: '#1a73e8', fillColor: '#1a73e8', fillOpacity: 0.1, weight: 1
-        }).addTo(leafletMap);
-        const locIcon = L.divIcon({
-          className: '',
-          html: `<div style="width:16px;height:16px;border-radius:50%;background:#1a73e8;border:3px solid white;box-shadow:0 2px 8px rgba(26,115,232,0.6);animation:pulse 2s infinite"></div>
-                 <style>@keyframes pulse{0%,100%{box-shadow:0 2px 8px rgba(26,115,232,0.6)}50%{box-shadow:0 2px 16px rgba(26,115,232,0.9)}}</style>`,
-          iconSize: [16,16], iconAnchor: [8,8]
-        });
-        window._locationMarker = L.marker(e.latlng, { icon: locIcon, zIndexOffset: 1000 }).addTo(leafletMap);
-      }
-    });
+// ── FIND LOCATIONS FOR EXISTING PLACES ────────────────────────────────────────
+// Looks each place up by name. A match is accepted only if its name matches and
+// it lies in (or within 2.5 km of) the place's current area; otherwise the place
+// is marked "Location?" so you can pick from the edit sheet.
+let findingLocations = null; // progress text while running
+
+const NAME_STOPWORDS = new Set(['the','a','an','at','of','and','in','on','for','to','london','s','st','cafe','café','restaurant','kitchen','house','museum','gallery','market','hotel','road','street','lane']);
+function nameTokens(name) {
+  return new Set(name.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase()
+    .replace(/['’]s\b/g, '').replace(/[^a-z0-9]+/g, ' ').trim().split(' ')
+    .filter(t => t.length > 1 && !NAME_STOPWORDS.has(t)));
+}
+function namesMatch(placeName, resultName) {
+  const a = nameTokens(placeName), b = nameTokens(resultName);
+  if (!a.size || !b.size) return placeName.trim().toLowerCase() === resultName.trim().toLowerCase();
+  const shared = [...a].filter(t => b.has(t)).length;
+  return shared >= 2 || (shared >= 1 && shared / a.size >= 0.5);
+}
+// The match must be in the place's area: its postcode district is listed for that
+// area, or it is within 2 km of one of the area's centre points.
+function areaAgrees(p, c) {
+  if (p.area === 'To Sort' || !AREA_COORDS[p.area]) return true;
+  const district = postcodeDistrict(c.postcode);
+  if (district && (POSTCODE_AREAS[district] || POSTCODE_AREAS[district.replace(/[A-Z]$/, '')]) === p.area) return true;
+  return [AREA_COORDS[p.area], ...(AREA_EXTRA_POINTS[p.area] || [])]
+    .some(([aLat, aLon]) => distanceKm(c.lat, c.lon, aLat, aLon) <= 2);
+}
+
+// "Morley Gallery — Canterbury Tales mural" → also try "Morley Gallery";
+// "Giacometti's at Tate Modern" → also try "Tate Modern".
+function searchTerms(name) {
+  const terms = [name];
+  const main = name.split(/\s+[—–-]\s+/)[0].trim();
+  if (main && main !== name) terms.push(main);
+  const at = main.split(/\s+at\s+/i);
+  if (at.length === 2 && at[1].trim()) terms.push(at[1].trim());
+  return [...new Set(terms)];
+}
+
+async function findLocations() {
+  if (findingLocations) return;
+  const targets = places.filter(p => !hasLocation(p) && !p.locCheck && p.area !== 'Anywhere (Underground)');
+  if (!targets.length) return;
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  let found = 0, unsure = 0, skipped = 0, failuresInARow = 0, stopped = false;
+  for (let i = 0; i < targets.length; i++) {
+    const p = targets[i];
+    findingLocations = `Finding locations… ${i + 1} of ${targets.length}`;
+    renderMapBar();
+    const terms = searchTerms(p.name);
+    const accept = (list, term) => list.find(c => namesMatch(term, c.name) && areaAgrees(p, c));
+    let match = null, anyAnswer = false;
+    for (const term of terms) {
+      try { match = accept(await searchPhoton(term, undefined, 4), term); anyAnswer = true; } catch (e) {}
+      if (match) break;
+      await sleep(300);
+    }
+    if (!match) {
+      // Second opinion from Nominatim, which knows some names Photon doesn't (max 1 request a second).
+      const term = terms[terms.length > 1 ? 1 : 0];
+      await sleep(1100);
+      try { match = accept(await searchNominatim(term), term); anyAnswer = true; } catch (e) {}
+    }
+    if (match) {
+      p.lat = match.lat; p.lon = match.lon; p.address = match.address || null; p.locCheck = false;
+      if (p.area === 'To Sort') p.area = areaFor(match.lat, match.lon, match.postcode);
+      found++; failuresInARow = 0;
+    } else if (anyAnswer) {
+      p.locCheck = true; unsure++; failuresInARow = 0;
+    } else {
+      skipped++; // both services failed; left as-is so the next run tries again
+      if (++failuresInARow >= 3) { stopped = true; break; }
+    }
+    if (i % 5 === 4) savePlaces(places); // keep progress if the app is closed midway
+    await sleep(300);
   }
-
-  setTimeout(() => leafletMap.invalidateSize(), 150);
+  findingLocations = null;
+  savePlaces(places);
+  buildAreaPicker(); render();
+  mapVisible = filteredPlaces();
+  renderMapBar(); drawMarkers();
+  showToast((stopped ? 'Stopped — check your connection. ' : '') + `Found ${found}.` +
+    (unsure ? ` ${unsure} ${unsure === 1 ? 'needs' : 'need'} you to choose — hold one in the list to edit.` : '') +
+    (skipped && !stopped ? ` ${skipped} couldn’t be looked up; try again later.` : ''));
 }
 
 // ── AREA PICKER ───────────────────────────────────────────────────────────────
@@ -691,7 +913,7 @@ function renderItem(grid, p) {
   el.innerHTML = `
     <div class="item-check">${p.visited ? '✓' : ''}</div>
     <div class="item-body">
-      <div class="item-name">${esc(p.name)}</div>
+      <div class="item-name">${esc(p.name)}${p.locCheck ? ' <span class="item-flag">Location?</span>' : ''}</div>
       ${p.note ? `<div class="item-note">${esc(p.note)}</div>` : ''}
     </div>
     ${tagHtml}
@@ -763,58 +985,394 @@ function hideToast() {
   t.classList.remove('show', 'has-action');
 }
 
-// ── MODAL ─────────────────────────────────────────────────────────────────────
+// ── LOCATIONS ─────────────────────────────────────────────────────────────────
+// Lookups use free services that need no key: Photon (search as you type),
+// Nominatim ("Search harder"), postcodes.io (postcodes and "I'm here now").
+const LONDON_BBOX = [-0.51, 51.28, 0.33, 51.69]; // west, south, east, north
+const AREA_MAX_KM = 3; // further than this from every area centre → To Sort
+
+// Postcode district → area, for districts that sit clearly in one area.
+// Anything not listed falls back to the nearest area centre.
+const POSTCODE_AREAS = {
+  'EC1':'City & Clerkenwell', 'EC2':'City & Clerkenwell', 'EC3':'City & Clerkenwell', 'EC4':'City & Clerkenwell',
+  'EC2A':'Shoreditch & Whitechapel', 'E1':'Shoreditch & Whitechapel', 'E1W':'Shoreditch & Whitechapel',
+  'WC1':'Holborn & Bloomsbury', 'WC2A':'Holborn & Bloomsbury', 'WC1X':'Kings Cross', 'WC2':'Covent Garden & Strand',
+  'W1B':'Soho & Chinatown', 'W1D':'Soho & Chinatown', 'W1F':'Soho & Chinatown',
+  'W1G':"Marylebone & Regent's Park", 'W1H':"Marylebone & Regent's Park", 'W1U':"Marylebone & Regent's Park",
+  'W1W':"Marylebone & Regent's Park", 'NW8':"Marylebone & Regent's Park",
+  'SW1':'Westminster & Pimlico',
+  'SE11':'Southwark & Elephant', 'SE17':'Southwark & Elephant',
+  'W2':'Kensington & Notting Hill', 'W8':'Kensington & Notting Hill', 'W10':'Kensington & Notting Hill',
+  'W11':'Kensington & Notting Hill', 'W14':'Kensington & Notting Hill', 'SW5':'Kensington & Notting Hill',
+  'SW7':'Kensington & Notting Hill',
+  'SW3':'Chelsea', 'SW10':'Chelsea',
+  'W3':'Chiswick & West', 'W4':'Chiswick & West', 'W5':'Chiswick & West', 'W6':'Chiswick & West',
+  'W12':'Chiswick & West', 'TW8':'Chiswick & West',
+  'N1C':'Kings Cross', 'N1':'Islington',
+  'NW3':'Hampstead & Highgate', 'N6':'Hampstead & Highgate',
+  'N4':'Finsbury Park & Holloway', 'N5':'Finsbury Park & Holloway', 'N7':'Finsbury Park & Holloway',
+  'N19':'Finsbury Park & Holloway', 'N16':'Stoke Newington',
+  'E2':'Hackney & Bethnal Green', 'E5':'Hackney & Bethnal Green', 'E8':'Hackney & Bethnal Green', 'E9':'Hackney & Bethnal Green',
+  'SW2':'Brixton & Tooting', 'SW4':'Brixton & Tooting', 'SW9':'Brixton & Tooting', 'SW12':'Brixton & Tooting',
+  'SW17':'Brixton & Tooting',
+  'SE5':'Peckham & Camberwell', 'SE15':'Peckham & Camberwell', 'SE22':'Peckham & Camberwell',
+  'SE8':'Greenwich & Deptford', 'SE10':'Greenwich & Deptford',
+};
+
+// Distance in km. (Degrees of longitude are much shorter than degrees of
+// latitude at London's latitude; ignoring that put Tooting in Chelsea.)
+function distanceKm(lat1, lon1, lat2, lon2) {
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return 6371 * 2 * Math.asin(Math.sqrt(a));
+}
+
+function postcodeDistrict(postcode) {
+  const pc = String(postcode || '').toUpperCase().replace(/\s+/g, '');
+  const m = pc.match(/^([A-Z]{1,2}\d[A-Z\d]?)\d[A-Z]{2}$/);
+  return m ? m[1] : null;
+}
+
+// Some areas join two neighbourhoods, so they get a second centre point.
+const AREA_EXTRA_POINTS = {
+  'Brixton & Tooting':        [[51.4613, -0.1156], [51.4275, -0.1680]],
+  'Peckham & Camberwell':     [[51.4740, -0.0920]],
+  'Greenwich & Deptford':     [[51.4787, -0.0262], [51.4826, 0.0077]],
+  'Chiswick & West':          [[51.4920, -0.2230], [51.5050, -0.2240]],
+  'Hackney & Bethnal Green':  [[51.5450, -0.0553], [51.5270, -0.0550]],
+  'Kensington & Notting Hill':[[51.4966, -0.1760]],
+};
+
+function nearestArea(lat, lon) {
+  let best = null, bestKm = Infinity;
+  for (const [area, centre] of Object.entries(AREA_COORDS)) {
+    if (area === 'Anywhere (Underground)') continue;
+    for (const [aLat, aLon] of [centre, ...(AREA_EXTRA_POINTS[area] || [])]) {
+      const km = distanceKm(lat, lon, aLat, aLon);
+      if (km < bestKm) { bestKm = km; best = area; }
+    }
+  }
+  return { area: best, km: bestKm };
+}
+
+// Work out the area for a location: postcode district first, then nearest centre.
+function areaFor(lat, lon, postcode) {
+  const district = postcodeDistrict(postcode);
+  if (district) {
+    if (POSTCODE_AREAS[district]) return POSTCODE_AREAS[district];
+    const shorter = district.replace(/[A-Z]$/, ''); // SW1W → SW1, EC1V → EC1
+    if (/\d$/.test(shorter) && POSTCODE_AREAS[shorter]) return POSTCODE_AREAS[shorter];
+  }
+  const { area, km } = nearestArea(lat, lon);
+  return km <= AREA_MAX_KM ? area : 'To Sort';
+}
+
+function inLondon(lat, lon) {
+  return lon >= LONDON_BBOX[0] && lon <= LONDON_BBOX[2] && lat >= LONDON_BBOX[1] && lat <= LONDON_BBOX[3];
+}
+
+// Coordinates from a pasted Apple Maps or Google Maps link, if it contains them.
+function coordsFromLink(text) {
+  let t = String(text || '');
+  try { t = decodeURIComponent(t); } catch (e) {}
+  const patterns = [
+    /!3d(-?\d{1,2}\.\d+)!4d(-?\d{1,3}\.\d+)/,                                     // Google place data
+    /[?&](?:ll|sll|q|query|center|daddr|destination)=(-?\d{1,2}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)/, // Apple/Google params
+    /@(-?\d{1,2}\.\d+),(-?\d{1,3}\.\d+)/,                                         // Google map view
+  ];
+  for (const re of patterns) {
+    const m = t.match(re);
+    if (m) {
+      const lat = parseFloat(m[1]), lon = parseFloat(m[2]);
+      if (Math.abs(lat) <= 90 && Math.abs(lon) <= 180) return { lat, lon };
+    }
+  }
+  return null;
+}
+
+const POSTCODE_RE = /^[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}$/i;
+
+// fetch JSON, giving up after 10 s. A cancel from the caller throws AbortError;
+// a timeout throws a normal Error so callers treat it as a failed lookup.
+async function fetchJson(url, signal, timeoutMs = 10000) {
+  const ctrl = new AbortController();
+  let timedOut = false;
+  const timer = setTimeout(() => { timedOut = true; ctrl.abort(); }, timeoutMs);
+  const onAbort = () => ctrl.abort();
+  if (signal) { if (signal.aborted) ctrl.abort(); else signal.addEventListener('abort', onAbort); }
+  try {
+    const res = await fetch(url, { signal: ctrl.signal, headers: { 'Accept': 'application/json' } });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.json();
+  } catch (e) {
+    if (timedOut) throw new Error('Timed out');
+    throw e;
+  } finally {
+    clearTimeout(timer);
+    if (signal) signal.removeEventListener('abort', onAbort);
+  }
+}
+
+function photonCandidate(f) {
+  const p = f.properties || {};
+  const [lon, lat] = f.geometry.coordinates;
+  const street = [p.housenumber, p.street].filter(Boolean).join(' ');
+  const name = p.name || street || p.district || p.city || 'Unnamed place';
+  const parts = [street && street !== name ? street : null, p.district || p.locality || null, p.postcode || null];
+  return { name, address: [...new Set(parts.filter(Boolean))].join(', '), lat, lon, postcode: p.postcode || null };
+}
+
+async function searchPhoton(text, signal, limit = 6) {
+  const url = 'https://photon.komoot.io/api/?' + new URLSearchParams({
+    q: text, limit: String(limit), lang: 'en', bbox: LONDON_BBOX.join(','),
+    lat: '51.5074', lon: '-0.1278', // prefer central London when names are ambiguous
+  });
+  const data = await fetchJson(url, signal);
+  return (data.features || []).map(photonCandidate).filter(c => inLondon(c.lat, c.lon));
+}
+
+async function searchNominatim(text, signal) {
+  const [w, s, e, n] = LONDON_BBOX;
+  const url = 'https://nominatim.openstreetmap.org/search?' + new URLSearchParams({
+    q: text, format: 'jsonv2', limit: '6', addressdetails: '1', bounded: '1',
+    viewbox: `${w},${n},${e},${s}`, 'accept-language': 'en',
+  });
+  const data = await fetchJson(url, signal);
+  return data.map(r => {
+    const a = r.address || {};
+    const street = [a.house_number, a.road].filter(Boolean).join(' ');
+    const name = r.name || street || r.display_name.split(',')[0];
+    const parts = [street && street !== name ? street : null, a.suburb || a.neighbourhood || a.city_district || null, a.postcode || null];
+    return { name, address: [...new Set(parts.filter(Boolean))].join(', '), lat: parseFloat(r.lat), lon: parseFloat(r.lon), postcode: a.postcode || null };
+  });
+}
+
+async function lookupPostcode(pc, signal) {
+  const data = await fetchJson('https://api.postcodes.io/postcodes/' + encodeURIComponent(pc.replace(/\s+/g, '')), signal);
+  const r = data.result;
+  return { name: 'Postcode ' + r.postcode, address: [r.admin_ward, r.admin_district].filter(Boolean).join(', '), lat: r.latitude, lon: r.longitude, postcode: r.postcode };
+}
+
+async function postcodeNear(lat, lon) {
+  try {
+    const data = await fetchJson(`https://api.postcodes.io/postcodes?lon=${lon}&lat=${lat}&limit=1&radius=300`);
+    return data.result && data.result[0] ? data.result[0].postcode : null;
+  } catch (e) { return null; }
+}
+
+function locationLabel(loc) {
+  return loc.address || `${loc.lat.toFixed(5)}, ${loc.lon.toFixed(5)}`;
+}
+
+// A search box with results, "I'm here now" and "Search harder", used in the
+// add and edit sheets. opts.onChange(location|null) fires when a match is chosen or removed.
+function createLocationPicker(root, opts) {
+  root.innerHTML = `
+    <div class="loc-chosen" hidden>
+      <div class="loc-chosen-body"><div class="loc-chosen-name"></div><div class="loc-chosen-addr"></div></div>
+      <button type="button" class="loc-link loc-change">Change</button>
+    </div>
+    <div class="loc-search">
+      <input type="search" class="loc-q" placeholder="Name, address, postcode or Maps link" autocomplete="off" autocapitalize="words" enterkeyhint="search" aria-label="Search for the location">
+      <div class="loc-status" aria-live="polite"></div>
+      <div class="loc-results"></div>
+      <div class="loc-actions">
+        <button type="button" class="loc-link loc-here">◎ I’m here now</button>
+        <button type="button" class="loc-link loc-harder">Search harder</button>
+        <button type="button" class="loc-link loc-remove" hidden>No location</button>
+      </div>
+    </div>`;
+  const $ = sel => root.querySelector(sel);
+  const q = $('.loc-q'), results = $('.loc-results'), status = $('.loc-status');
+  const chosenBox = $('.loc-chosen'), searchBox = $('.loc-search');
+  let chosen = null, reqId = 0, timer = null, ctrl = null, typed = false, previous = null;
+
+  const setStatus = t => { status.textContent = t || ''; };
+
+  function showChosen() {
+    chosenBox.hidden = !chosen;
+    searchBox.hidden = !!chosen;
+    if (chosen) {
+      $('.loc-chosen-name').textContent = '📍 ' + (chosen.name || 'Location');
+      $('.loc-chosen-addr').textContent = locationLabel(chosen);
+    }
+  }
+
+  function choose(loc) {
+    chosen = loc ? { lat: loc.lat, lon: loc.lon, address: loc.address || null, postcode: loc.postcode || null, name: loc.name || '' } : null;
+    results.innerHTML = ''; setStatus('');
+    showChosen();
+    opts.onChange(chosen);
+  }
+
+  function renderCandidates(list) {
+    results.innerHTML = '';
+    list.forEach(c => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'loc-result';
+      const n = document.createElement('span'); n.className = 'loc-result-name'; n.textContent = c.name;
+      const a = document.createElement('span'); a.className = 'loc-result-addr';
+      a.textContent = [c.address, areaFor(c.lat, c.lon, c.postcode)].filter(Boolean).join(' · ');
+      b.append(n, a);
+      b.onclick = () => choose(c);
+      results.appendChild(b);
+    });
+  }
+
+  async function run(text, deep) {
+    text = (text || '').trim();
+    const id = ++reqId;
+    if (ctrl) ctrl.abort();
+    ctrl = new AbortController();
+    if (text.length < 3) { results.innerHTML = ''; setStatus(''); return; }
+
+    if (/^https?:\/\//i.test(text) || /maps\.(apple|google)|goo\.gl|maps\.app/i.test(text)) {
+      const c = coordsFromLink(text);
+      if (c) {
+        setStatus('Reading link…');
+        const postcode = await postcodeNear(c.lat, c.lon);
+        if (id !== reqId) return;
+        renderCandidates([{ name: 'Location from link', address: postcode ? 'Near ' + postcode : '', ...c, postcode }]);
+        setStatus('');
+      } else {
+        results.innerHTML = '';
+        setStatus('That link doesn’t include a location. Search by name or postcode instead.');
+      }
+      return;
+    }
+
+    setStatus(deep ? 'Searching harder…' : 'Searching…');
+    const found = [];
+    try {
+      if (POSTCODE_RE.test(text)) found.push(await lookupPostcode(text, ctrl.signal));
+    } catch (e) { if (e.name === 'AbortError') return; }
+    try {
+      found.push(...await (deep ? searchNominatim(text, ctrl.signal) : searchPhoton(text, ctrl.signal)));
+    } catch (e) {
+      if (e.name === 'AbortError') return;
+      if (id === reqId && !found.length) { results.innerHTML = ''; setStatus('Couldn’t search — check your connection.'); return; }
+    }
+    if (id !== reqId) return;
+    const seen = new Set();
+    const unique = found.filter(c => {
+      const k = c.name.toLowerCase() + '|' + c.lat.toFixed(4) + '|' + c.lon.toFixed(4);
+      if (seen.has(k)) return false; seen.add(k); return true;
+    });
+    renderCandidates(unique);
+    setStatus(unique.length ? 'Tap the right one:' :
+      deep ? 'Still nothing in London. Try an address or postcode.' : 'No matches in London. Try Search harder, an address or a postcode.');
+  }
+
+  function schedule(text) {
+    clearTimeout(timer);
+    timer = setTimeout(() => run(text, false), 350);
+  }
+
+  q.addEventListener('input', () => { typed = true; schedule(q.value); });
+  q.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); clearTimeout(timer); run(q.value, false); } });
+  $('.loc-harder').onclick = () => { clearTimeout(timer); run(q.value || opts.getName(), true); };
+  $('.loc-change').onclick = () => {
+    previous = chosen;
+    chosen = null; showChosen();
+    $('.loc-remove').hidden = false;
+    if (!q.value) q.value = opts.getName();
+    run(q.value, false).then(() => { if (previous && !results.children.length) setStatus('Your current location is kept unless you pick a new one.'); });
+    q.focus();
+  };
+  $('.loc-remove').onclick = () => { previous = null; choose(null); setStatus('Saved without a location.'); };
+  $('.loc-here').onclick = () => {
+    if (!navigator.geolocation) { setStatus('Location isn’t available on this device.'); return; }
+    setStatus('Finding where you are…');
+    navigator.geolocation.getCurrentPosition(async pos => {
+      const { latitude: lat, longitude: lon, accuracy } = pos.coords;
+      const postcode = await postcodeNear(lat, lon);
+      choose({ name: 'Where I was standing', lat, lon, postcode,
+        address: (postcode ? 'Near ' + postcode : '') + (accuracy > 100 ? ` (accurate to about ${Math.round(accuracy)} m)` : '') });
+    }, err => {
+      setStatus(err.code === 1 ? 'Location permission is off for this site. Allow it in Settings → Safari → Location.' : 'Couldn’t get your location. Try again outside or search instead.');
+    }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 });
+  };
+
+  return {
+    // Fill the search from the place name, unless the user has typed their own search.
+    followName(name) { if (!typed && !chosen) { q.value = name; schedule(name); } },
+    reset(loc, name) {
+      clearTimeout(timer); if (ctrl) ctrl.abort(); reqId++;
+      typed = false; previous = null;
+      results.innerHTML = ''; setStatus('');
+      $('.loc-remove').hidden = true;
+      q.value = '';
+      chosen = loc && loc.lat !== null && loc.lat !== undefined ? { ...loc } : null;
+      showChosen();
+      if (!chosen && name) { q.value = name; run(name, false); }
+    },
+    // While changing, the old location is kept until a new one is picked or removed.
+    get value() { return chosen || previous; },
+  };
+}
+
+function fillAreaSelect(sel, current) {
+  sel.innerHTML = '';
+  const areas = [...new Set([...AREA_ORDER, ...places.map(x => x.area), 'To Sort'])];
+  if (current && !areas.includes(current)) areas.push(current);
+  areas.forEach(a => {
+    const opt = document.createElement('option');
+    opt.value = a; opt.textContent = a;
+    opt.selected = a === current;
+    sel.appendChild(opt);
+  });
+}
+
+// ── ADD MODAL ─────────────────────────────────────────────────────────────────
+let addPicker = null, editPicker = null;
+
+function nameStartsLike(typed, suggestion) {
+  const a = typed.trim().toLowerCase(), b = suggestion.toLowerCase();
+  return !a || (b.startsWith(a) && b !== a);
+}
+
+function updateAddSaveLabel() {
+  document.querySelector('#modal-backdrop .btn-save').textContent =
+    addPicker.value ? 'Save place' : 'Save without location';
+}
+
 function openModal() {
   ['f-name','f-note'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('f-area-status').textContent = '';
+  fillAreaSelect(document.getElementById('f-area'), 'To Sort');
+  addPicker.reset(null, '');
+  updateAddSaveLabel();
   document.getElementById('modal-backdrop').classList.add('open');
   setTimeout(() => document.getElementById('f-name').focus(), 250);
 }
 function closeModal() { document.getElementById('modal-backdrop').classList.remove('open'); }
 function backdropClick(e) { if (e.target === document.getElementById('modal-backdrop')) closeModal(); }
 
-async function geocodeToArea(name) {
-  const status = document.getElementById('f-area-status');
-  status.textContent = 'Finding location…';
-  try {
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(name + ', London')}&format=json&limit=1&countrycodes=gb`;
-    const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
-    const data = await res.json();
-    if (!data.length) { status.textContent = 'Not found — saving to To Sort'; return 'To Sort'; }
-    const lat = parseFloat(data[0].lat);
-    const lon = parseFloat(data[0].lon);
-    let best = 'To Sort', bestDist = Infinity;
-    for (const [area, coords] of Object.entries(AREA_COORDS)) {
-      if (area === 'Anywhere (Underground)') continue;
-      const d = Math.hypot(lat - coords[0], lon - coords[1]);
-      if (d < bestDist) { bestDist = d; best = area; }
-    }
-    status.textContent = `📍 ${best}`;
-    return best;
-  } catch(e) {
-    status.textContent = 'Could not locate — saving to To Sort';
-    return 'To Sort';
-  }
-}
-
-async function savePlace() {
-  const name = document.getElementById('f-name').value.trim();
-  const note = document.getElementById('f-note').value.trim();
+function savePlace() {
+  const nameEl = document.getElementById('f-name');
+  const name = cleanText(nameEl.value, MAX_NAME);
+  const note = cleanText(document.getElementById('f-note').value, MAX_NOTE);
   const tag  = document.getElementById('f-tag').value;
-  if (!name) { document.getElementById('f-name').focus(); return; }
-  const btn = document.querySelector('.btn-save');
-  btn.textContent = 'Locating…'; btn.disabled = true;
-  const area = await geocodeToArea(name);
-  btn.textContent = 'Save place'; btn.disabled = false;
-  places.push({ id: Date.now().toString(), area, name, note: note || null, tags: [tag], visited: false });
-  savePlaces(places); closeModal(); activeArea = area;
+  if (!name) { nameEl.focus(); showToast('Add a name first'); return; }
+  const loc = addPicker.value;
+  const area = document.getElementById('f-area').value || 'To Sort';
+  const dupe = places.find(p => placeKey(p) === placeKey({ name, area }));
+  if (dupe && !confirm(`“${dupe.name}” is already in ${area}. Add it again?`)) return;
+  places.push({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    area, name, note: note || null, tags: [tag], visited: false,
+    lat: loc ? loc.lat : null, lon: loc ? loc.lon : null,
+    address: loc ? (loc.address || null) : null, locCheck: false,
+  });
+  if (!savePlaces(places)) return;
+  closeModal(); activeArea = area;
   buildAreaPicker(); render();
+  showToast(loc ? `Saved to ${area}` : `Saved to ${area} without a location`);
   setTimeout(() => {
     const pill = document.querySelector(`.area-pill[data-area="${CSS.escape(area)}"]`);
     if (pill) pill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
   }, 120);
 }
-
 
 // ── EDIT MODAL ────────────────────────────────────────────────────────────────
 let editingId = null;
@@ -823,33 +1381,15 @@ function openEditModal(id) {
   const p = places.find(x => x.id === id);
   if (!p) return;
   editingId = id;
-
   document.getElementById('e-name').value = p.name;
   document.getElementById('e-note').value = p.note || '';
-
-  // Populate area select
-  const sel = document.getElementById('e-area');
-  sel.innerHTML = '';
-  const areas = [...new Set([...AREA_ORDER, ...places.map(x => x.area)])];
-  areas.forEach(a => {
-    const opt = document.createElement('option');
-    opt.value = a; opt.textContent = a;
-    if (a === p.area) opt.selected = true;
-    sel.appendChild(opt);
-  });
-  // Add To Sort if not there
-  if (!areas.includes('To Sort')) {
-    const opt = document.createElement('option');
-    opt.value = 'To Sort'; opt.textContent = 'To Sort';
-    if (p.area === 'To Sort') opt.selected = true;
-    sel.appendChild(opt);
-  }
-
-  // Set tag
+  fillAreaSelect(document.getElementById('e-area'), p.area);
   const tagSel = document.getElementById('e-tag');
   const currentTag = (p.tags||[])[0] || 'history';
   [...tagSel.options].forEach(o => { o.selected = o.value === currentTag; });
-
+  // With a location: show it. Without one: start searching for the name straight away.
+  editPicker.reset(hasLocation(p) ? { lat: p.lat, lon: p.lon, address: p.address, name: p.name } : null,
+                   hasLocation(p) || p.area === 'Anywhere (Underground)' ? '' : p.name);
   document.getElementById('edit-modal-backdrop').classList.add('open');
 }
 
@@ -865,10 +1405,18 @@ function backdropClickEdit(e) {
 function saveEdit() {
   const p = places.find(x => x.id === editingId);
   if (!p) return;
-  p.name = document.getElementById('e-name').value.trim() || p.name;
+  p.name = cleanText(document.getElementById('e-name').value, MAX_NAME) || p.name;
   p.area = document.getElementById('e-area').value;
-  p.tags = [document.getElementById('e-tag').value];
-  p.note = document.getElementById('e-note').value.trim() || null;
+  // Keep any extra categories; only the first (shown) one is edited here.
+  const tags = (p.tags || []).slice();
+  tags[0] = document.getElementById('e-tag').value;
+  p.tags = [...new Set(tags)];
+  p.note = cleanText(document.getElementById('e-note').value, MAX_NOTE) || null;
+  const loc = editPicker.value;
+  p.lat = loc ? loc.lat : null;
+  p.lon = loc ? loc.lon : null;
+  p.address = loc ? (loc.address || null) : null;
+  if (loc) p.locCheck = false;
   savePlaces(places);
   closeEditModal();
   activeArea = p.area;
@@ -884,6 +1432,35 @@ function deleteFromEdit() {
   buildAreaPicker();
   render();
 }
+
+function setupPickers() {
+  addPicker = createLocationPicker(document.getElementById('f-loc'), {
+    getName: () => document.getElementById('f-name').value,
+    onChange: loc => {
+      if (loc) {
+        document.getElementById('f-area').value = areaFor(loc.lat, loc.lon, loc.postcode);
+        const nameEl = document.getElementById('f-name');
+        if (loc.name && !/^(Postcode |Location from link|Where I was standing)/.test(loc.name) && nameStartsLike(nameEl.value, loc.name)) {
+          nameEl.value = loc.name;
+        }
+      }
+      updateAddSaveLabel();
+    },
+  });
+  document.getElementById('f-name').addEventListener('input', e => addPicker.followName(e.target.value));
+  editPicker = createLocationPicker(document.getElementById('e-loc'), {
+    getName: () => document.getElementById('e-name').value,
+    onChange: loc => {
+      if (loc) {
+        const sel = document.getElementById('e-area');
+        const area = areaFor(loc.lat, loc.lon, loc.postcode);
+        if (![...sel.options].some(o => o.value === area)) fillAreaSelect(sel, area);
+        sel.value = area;
+      }
+    },
+  });
+}
+
 // ── BACKUP: EXPORT / IMPORT ───────────────────────────────────────────────────
 let pendingImport = null; // { places, skipped, fileName }
 
@@ -1075,45 +1652,10 @@ function startFresh() {
   buildAreaPicker(); render();
 }
 
+setupPickers();
 buildAreaPicker();
 render();
 </script>
 
-<!-- EDIT MODAL -->
-<div class="modal-backdrop" id="edit-modal-backdrop" onclick="backdropClickEdit(event)">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <h2>Edit place</h2>
-    <div class="field">
-      <label>Name</label>
-      <input type="text" id="e-name" autocomplete="off">
-    </div>
-    <div class="field">
-      <label>Area</label>
-      <select id="e-area"></select>
-    </div>
-    <div class="field">
-      <label>Category</label>
-      <select id="e-tag">
-        <option value="food">🍴 Food</option>
-        <option value="museum">🏛 Museum</option>
-        <option value="architecture">🏗 Architecture</option>
-        <option value="walk">🚶 Walk</option>
-        <option value="history">📜 History</option>
-        <option value="art">🎨 Art</option>
-        <option value="nature">🌿 Nature</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>Note</label>
-      <textarea id="e-note"></textarea>
-    </div>
-    <div class="modal-actions" style="justify-content:space-between">
-      <button class="btn-cancel" onclick="deleteFromEdit()" style="color:#c0392b;border-color:#c0392b">Delete</button>
-      <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
-      <button class="btn-save" onclick="saveEdit()" style="flex:none;padding:12px 24px">Save</button>
-    </div>
-  </div>
-</div>
 </body>
 </html>
