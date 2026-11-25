@@ -123,6 +123,12 @@
   .map-panel-header h2 { font-family: Georgia, serif; font-size: 1.1rem; font-weight: normal; }
   .map-close { background: rgba(255,255,255,0.12); border: none; color: #f5f0e8; padding: 6px 14px; border-radius: 14px; font-size: 0.8rem; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   #the-map { flex: 1; width: 100%; }
+  .locate-btn { position: absolute; right: 14px; bottom: calc(28px + env(safe-area-inset-bottom)); z-index: 1001; width: 48px; height: 48px; border-radius: 50%; border: none; background: #fff; color: #1a73e8; box-shadow: 0 2px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .locate-btn:active { transform: scale(0.94); }
+  .locate-btn.following svg path { fill: #1a73e8; }
+  .loc-wrap { position: relative; width: 16px; height: 16px; }
+  .loc-dot { position: absolute; inset: 0; border-radius: 50%; background: #1a73e8; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(26,115,232,0.6); }
+  .loc-heading { position: absolute; left: -6px; top: -26px; width: 0; height: 0; border-left: 14px solid transparent; border-right: 14px solid transparent; border-bottom: 34px solid rgba(26,115,232,0.35); transform-origin: 50% 100%; display: none; }
   .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1410; color: #f5f0e8; padding: 9px 18px; border-radius: 20px; font-size: 0.78rem; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 400; max-width: calc(100vw - 32px); width: max-content; text-align: center; line-height: 1.35; }
   .toast.show { opacity: 1; }
 
@@ -210,6 +216,9 @@
   </div>
   <div class="map-bar" id="map-bar" hidden></div>
   <div id="the-map"></div>
+  <button class="locate-btn" id="locate-btn" type="button" aria-label="Show where I am" onclick="locateMe()">
+    <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M21 3 3 10.5l7.5 2.9L13.4 21z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+  </button>
 </div>
 
 <div class="sticky-top">
@@ -774,12 +783,15 @@ function openMapPanel() {
 }
 
 function closeMapPanel() {
+  setFollowing(false);
+  window.removeEventListener('deviceorientation', onHeading);
   if (leafletMap) {
     leafletMap.stopLocate();
     if (locationMarker) leafletMap.removeLayer(locationMarker);
     if (locationAccuracy) leafletMap.removeLayer(locationAccuracy);
   }
   locationMarker = locationAccuracy = null;
+  lastLocation = null; centreOnNextFix = false;
   document.getElementById('map-panel').classList.remove('open');
   document.body.style.overflow = '';
 }
@@ -797,21 +809,88 @@ function mapLinks(p) {
   };
 }
 
+// ── WHERE AM I (locate button, follow mode, compass) ─────────────────────────
+let lastLocation = null;      // most recent position (Leaflet LatLng)
+let following = false;        // keep the map centred on you until you drag it
+let centreOnNextFix = false;  // button tapped before the first position arrived
+let heading = null;           // degrees from north, from the phone's compass
+
+function setFollowing(on) {
+  following = on;
+  document.getElementById('locate-btn').classList.toggle('following', on);
+}
+
 function onLocationFound(e) {
+  lastLocation = e.latlng;
   if (locationMarker) {
     locationMarker.setLatLng(e.latlng);
     locationAccuracy.setLatLng(e.latlng).setRadius(e.accuracy);
-    return;
+  } else {
+    locationAccuracy = L.circle(e.latlng, {
+      radius: e.accuracy, color: '#1a73e8', fillColor: '#1a73e8', fillOpacity: 0.1, weight: 1, interactive: false
+    }).addTo(leafletMap);
+    const locIcon = L.divIcon({
+      className: '',
+      html: '<div class="loc-wrap"><div class="loc-heading"></div><div class="loc-dot"></div></div>',
+      iconSize: [16,16], iconAnchor: [8,8]
+    });
+    locationMarker = L.marker(e.latlng, { icon: locIcon, zIndexOffset: 1000, interactive: false }).addTo(leafletMap);
+    drawHeading();
   }
-  locationAccuracy = L.circle(e.latlng, {
-    radius: e.accuracy, color: '#1a73e8', fillColor: '#1a73e8', fillOpacity: 0.1, weight: 1
-  }).addTo(leafletMap);
-  const locIcon = L.divIcon({
-    className: '',
-    html: `<div style="width:16px;height:16px;border-radius:50%;background:#1a73e8;border:3px solid white;box-shadow:0 2px 8px rgba(26,115,232,0.6)"></div>`,
-    iconSize: [16,16], iconAnchor: [8,8]
-  });
-  locationMarker = L.marker(e.latlng, { icon: locIcon, zIndexOffset: 1000 }).addTo(leafletMap);
+  if (centreOnNextFix) {
+    centreOnNextFix = false;
+    leafletMap.setView(e.latlng, Math.max(leafletMap.getZoom() || 0, 16));
+    setFollowing(true);
+  } else if (following) {
+    leafletMap.panTo(e.latlng);
+  }
+}
+
+function onLocationError(e) {
+  if (!centreOnNextFix) return; // only complain when you asked for it
+  centreOnNextFix = false;
+  showToast(e.code === 1
+    ? 'Location is off for this site. Allow it in Settings → Privacy → Location Services → Safari Websites.'
+    : 'Couldn’t find where you are. Try again in a moment.');
+}
+
+function locateMe() {
+  if (!leafletMap || !navigator.geolocation) { showToast('Location isn’t available on this device.'); return; }
+  startCompass(); // needs this tap on iPhone
+  if (following) { setFollowing(false); return; } // second tap stops following
+  if (lastLocation) {
+    leafletMap.setView(lastLocation, Math.max(leafletMap.getZoom(), 16));
+    setFollowing(true);
+  } else {
+    centreOnNextFix = true;
+    showToast('Finding where you are…');
+    leafletMap.locate({ watch: true, enableHighAccuracy: true });
+  }
+}
+
+// Compass: iPhone asks for permission (only from a tap); others just send events.
+function startCompass() {
+  if (!('DeviceOrientationEvent' in window) || startCompass.started) return;
+  const listen = () => { startCompass.started = true; window.addEventListener('deviceorientation', onHeading); };
+  if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+    DeviceOrientationEvent.requestPermission().then(r => { if (r === 'granted') listen(); }).catch(() => {});
+  } else {
+    listen();
+  }
+}
+function onHeading(e) {
+  let h = null;
+  if (typeof e.webkitCompassHeading === 'number') h = e.webkitCompassHeading;   // iPhone
+  else if (e.absolute && typeof e.alpha === 'number') h = (360 - e.alpha) % 360;
+  if (h === null) return;
+  heading = h;
+  drawHeading();
+}
+function drawHeading() {
+  const el = locationMarker && locationMarker.getElement() && locationMarker.getElement().querySelector('.loc-heading');
+  if (!el) return;
+  el.style.display = heading === null ? 'none' : 'block';
+  if (heading !== null) el.style.transform = `rotate(${Math.round(heading)}deg)`;
 }
 
 function initMap() {
@@ -821,6 +900,8 @@ function initMap() {
       attribution: '© OpenStreetMap'
     }).addTo(leafletMap);
     leafletMap.on('locationfound', onLocationFound); // registered once, not on every open
+    leafletMap.on('locationerror', onLocationError);
+    leafletMap.on('dragstart', () => setFollowing(false)); // moving the map yourself stops following
   }
   drawMarkers();
   if (navigator.geolocation) leafletMap.locate({ watch: true, enableHighAccuracy: true });
