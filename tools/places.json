@@ -1,0 +1,491 @@
+{
+  "_about": "Place names (lower case) mapped to London List areas, used by build_planner.py to file shoots, blog posts and Getty titles. A leading '!' means the name is ambiguous on its own ('bank', 'victoria') and only counts when the text also says London. 'outside' lists places beyond the London areas, with a centre point.",
+  "areas": {
+    "City & Clerkenwell": [
+      "city of london",
+      "!the city",
+      "clerkenwell",
+      "clerkenwell green",
+      "barbican",
+      "st paul's",
+      "st pauls",
+      "!bank junction",
+      "cheapside",
+      "guildhall",
+      "lloyds building",
+      "lloyd's building",
+      "leadenhall",
+      "smithfield",
+      "barts",
+      "st bartholomew",
+      "charterhouse",
+      "old bailey",
+      "farringdon",
+      "moorgate",
+      "liverpool street",
+      "aldgate",
+      "tower hill",
+      "!monument",
+      "fleet street",
+      "!temple",
+      "temple bar",
+      "blackfriars",
+      "mansion house",
+      "royal exchange",
+      "st mary axe",
+      "gherkin",
+      "finsbury",
+      "exmouth market",
+      "little italy",
+      "paternoster",
+      "postman's park",
+      "tower of london",
+      "the walkie talkie",
+      "fenchurch street",
+      "london wall",
+      "noble street"
+    ],
+    "Holborn & Bloomsbury": [
+      "holborn",
+      "bloomsbury",
+      "british museum",
+      "russell square",
+      "lincoln's inn",
+      "theobalds road",
+      "gray's inn",
+      "leather lane",
+      "hatton garden",
+      "ely place",
+      "soane",
+      "great ormond street",
+      "lamb's conduit"
+    ],
+    "Fitzrovia & Euston": [
+      "fitzrovia",
+      "euston",
+      "tottenham court road",
+      "goodge street",
+      "charlotte street",
+      "great portland street",
+      "warren street",
+      "bt tower",
+      "centre point"
+    ],
+    "Covent Garden & Strand": [
+      "covent garden",
+      "!strand",
+      "trafalgar square",
+      "aldwych",
+      "seven dials",
+      "leicester square",
+      "!embankment",
+      "somerset house",
+      "australia house",
+      "charing cross",
+      "national gallery",
+      "cleopatra's needle",
+      "swiss glockenspiel"
+    ],
+    "Soho & Chinatown": [
+      "soho",
+      "chinatown",
+      "carnaby",
+      "regent street",
+      "oxford street",
+      "piccadilly circus",
+      "dering street",
+      "cambridge circus"
+    ],
+    "Mayfair & St James's": [
+      "mayfair",
+      "st james's",
+      "st. james's",
+      "st james",
+      "green park",
+      "!piccadilly",
+      "grosvenor square",
+      "bond street",
+      "berkeley square",
+      "pall mall",
+      "buckingham palace",
+      "!the mall",
+      "park lane",
+      "savile row",
+      "burlington arcade",
+      "fortnum"
+    ],
+    "Marylebone & Regent's Park": [
+      "marylebone",
+      "regent's park",
+      "regents park",
+      "baker street",
+      "chester terrace",
+      "portland place",
+      "st john's wood",
+      "london zoo",
+      "queen mary's gardens",
+      "landmark london hotel"
+    ],
+    "Westminster & Pimlico": [
+      "westminster",
+      "pimlico",
+      "!victoria",
+      "victoria station",
+      "whitehall",
+      "houses of parliament",
+      "big ben",
+      "vincent square",
+      "westminster abbey",
+      "st james's park",
+      "tate britain",
+      "horse guards",
+      "downing street",
+      "page street",
+      "ministry of defence"
+    ],
+    "South Bank & Waterloo": [
+      "south bank",
+      "southbank",
+      "waterloo",
+      "waterloo bridge",
+      "london eye",
+      "bankside",
+      "tate modern",
+      "borough market",
+      "lambeth",
+      "archbishop's park",
+      "millennium bridge",
+      "shakespeare's globe",
+      "!london bridge"
+    ],
+    "Southwark & Elephant": [
+      "southwark",
+      "elephant & castle",
+      "elephant and castle",
+      "kennington",
+      "walworth",
+      "!borough"
+    ],
+    "Bermondsey & Rotherhithe": [
+      "bermondsey",
+      "rotherhithe",
+      "tower bridge",
+      "shad thames",
+      "canada water"
+    ],
+    "Kings Cross": [
+      "king's cross",
+      "kings cross",
+      "st pancras",
+      "st. pancras",
+      "coal drops yard",
+      "granary square",
+      "british library",
+      "regent's canal"
+    ],
+    "Camden & Primrose Hill": [
+      "camden",
+      "primrose hill",
+      "kentish town",
+      "chalk farm",
+      "greater london house",
+      "mornington crescent"
+    ],
+    "Hampstead & Highgate": [
+      "hampstead",
+      "highgate",
+      "hampstead heath",
+      "golders green",
+      "hampstead garden suburb",
+      "finchley",
+      "kenwood"
+    ],
+    "Islington": [
+      "islington",
+      "!angel",
+      "highbury",
+      "canonbury",
+      "upper street",
+      "caledonian",
+      "thornhill square",
+      "barnsbury",
+      "chapel market"
+    ],
+    "Finsbury Park & Holloway": [
+      "finsbury park",
+      "holloway",
+      "archway",
+      "parkland walk"
+    ],
+    "Stoke Newington": [
+      "stoke newington",
+      "clissold park",
+      "abney park"
+    ],
+    "Crouch End & Muswell Hill": [
+      "crouch end",
+      "muswell hill",
+      "alexandra palace",
+      "wood green",
+      "hornsey"
+    ],
+    "Shoreditch & Whitechapel": [
+      "shoreditch",
+      "whitechapel",
+      "brick lane",
+      "spitalfields",
+      "hoxton",
+      "columbia road",
+      "old street",
+      "petticoat lane",
+      "toynbee hall",
+      "banglatown",
+      "east end"
+    ],
+    "Hackney & Bethnal Green": [
+      "hackney",
+      "bethnal green",
+      "dalston",
+      "haggerston",
+      "broadway market",
+      "london fields",
+      "victoria park",
+      "ridley road",
+      "homerton",
+      "east end homes"
+    ],
+    "Stratford & Hackney Wick": [
+      "stratford",
+      "hackney wick",
+      "olympic park",
+      "!bow",
+      "three mills",
+      "roman road",
+      "mile end"
+    ],
+    "Walthamstow & Leyton": [
+      "walthamstow",
+      "leyton",
+      "leytonstone"
+    ],
+    "Wapping & Docklands": [
+      "wapping",
+      "docklands",
+      "canary wharf",
+      "limehouse",
+      "isle of dogs",
+      "canning town",
+      "limekiln",
+      "city island",
+      "trinity buoy wharf",
+      "royal docks",
+      "poplar"
+    ],
+    "Greenwich & Deptford": [
+      "greenwich",
+      "deptford",
+      "blackheath",
+      "woolwich",
+      "new cross",
+      "cutty sark",
+      "lewisham"
+    ],
+    "Brixton & Clapham": [
+      "brixton",
+      "clapham",
+      "stockwell",
+      "herne hill"
+    ],
+    "Tooting & Balham": [
+      "tooting",
+      "balham"
+    ],
+    "Battersea & Wandsworth": [
+      "battersea",
+      "wandsworth",
+      "nine elms",
+      "vauxhall",
+      "battersea power station"
+    ],
+    "Peckham & Camberwell": [
+      "peckham",
+      "camberwell",
+      "nunhead"
+    ],
+    "Dulwich & Forest Hill": [
+      "dulwich",
+      "forest hill",
+      "sydenham",
+      "horniman"
+    ],
+    "Kensington & Notting Hill": [
+      "kensington",
+      "notting hill",
+      "holland park",
+      "earls court",
+      "earl's court",
+      "gloucester road",
+      "olympia",
+      "portobello",
+      "kensington palace",
+      "kensington gardens",
+      "pembroke square",
+      "edwardes square",
+      "natural history museum",
+      "science museum",
+      "exhibition road",
+      "albert hall",
+      "albert memorial",
+      "ismaili centre",
+      "imperial college",
+      "knightsbridge",
+      "pont street",
+      "ennismore"
+    ],
+    "Chelsea & Fulham": [
+      "chelsea",
+      "fulham",
+      "king's road",
+      "kings road",
+      "world's end",
+      "brompton cemetery",
+      "chelsea physic garden",
+      "sloane square",
+      "chelsea flower show",
+      "sloane"
+    ],
+    "Paddington & Maida Vale": [
+      "paddington",
+      "maida vale",
+      "little venice",
+      "queensway",
+      "bayswater",
+      "porchester",
+      "cambridge square",
+      "st mary's hospital",
+      "edgware road",
+      "hyde park",
+      "stanhope place"
+    ],
+    "Hammersmith & Chiswick": [
+      "hammersmith",
+      "chiswick",
+      "acton",
+      "south acton",
+      "white city",
+      "shepherd's bush",
+      "gunnersbury",
+      "ealing",
+      "mill hill park"
+    ],
+    "Richmond & Kew": [
+      "!richmond",
+      "!kew",
+      "kew gardens",
+      "mortlake"
+    ]
+  },
+  "outside": {
+    "Eastcote": {
+      "names": [
+        "eastcote"
+      ],
+      "lat": 51.5763,
+      "lon": -0.3965
+    },
+    "Kingston": {
+      "names": [
+        "kingston upon thames",
+        "kingston-upon-thames",
+        "kingston"
+      ],
+      "lat": 51.4123,
+      "lon": -0.3007
+    },
+    "Surbiton": {
+      "names": [
+        "surbiton"
+      ],
+      "lat": 51.3937,
+      "lon": -0.3036
+    },
+    "Hastings": {
+      "names": [
+        "hastings"
+      ],
+      "lat": 50.8569,
+      "lon": 0.5933
+    },
+    "Cambridge": {
+      "names": [
+        "cambridge"
+      ],
+      "lat": 52.2053,
+      "lon": 0.1218
+    },
+    "Colchester": {
+      "names": [
+        "colchester"
+      ],
+      "lat": 51.8959,
+      "lon": 0.8919
+    },
+    "Mersea Island": {
+      "names": [
+        "mersea",
+        "west mersea"
+      ],
+      "lat": 51.7783,
+      "lon": 0.9183
+    },
+    "Graffham": {
+      "names": [
+        "graffham"
+      ],
+      "lat": 50.958,
+      "lon": -0.669
+    },
+    "Windsor": {
+      "names": [
+        "windsor"
+      ],
+      "lat": 51.4839,
+      "lon": -0.6044
+    },
+    "Brighton": {
+      "names": [
+        "brighton"
+      ],
+      "lat": 50.8225,
+      "lon": -0.1372
+    },
+    "St Albans": {
+      "names": [
+        "st albans"
+      ],
+      "lat": 51.7527,
+      "lon": -0.3394
+    },
+    "Oxford": {
+      "names": [
+        "oxford"
+      ],
+      "lat": 51.752,
+      "lon": -1.2577
+    },
+    "Whitstable": {
+      "names": [
+        "whitstable"
+      ],
+      "lat": 51.3609,
+      "lon": 1.0256
+    },
+    "Canterbury": {
+      "names": [
+        "canterbury"
+      ],
+      "lat": 51.2802,
+      "lon": 1.0789
+    }
+  }
+}

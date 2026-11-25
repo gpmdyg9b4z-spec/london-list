@@ -191,6 +191,11 @@
   .toast-action { background: rgba(255,255,255,0.14); border: none; color: #f5f0e8; font-family: var(--sans); font-size: 0.78rem; font-weight: 600; padding: 8px 14px; border-radius: 16px; min-height: 36px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 
   .header-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  @media (max-width: 420px) {   /* three header buttons beside the title on an iPhone */
+    header h1 { white-space: nowrap; font-size: 1.45rem; }
+    .header-actions { gap: 5px; }
+    .header-actions .map-btn { padding: 6px 9px; gap: 3px; }
+  }
 
   /* STORAGE PROBLEM BANNER */
   .storage-banner { margin: 16px; padding: 14px 16px; border: 1px solid #c0392b; border-radius: 10px; background: #fdf0ee; color: #1a1410; font-size: 0.85rem; line-height: 1.45; }
@@ -205,6 +210,26 @@
   .backup-btn small { display: block; font-size: 0.72rem; color: #6e5636; margin-top: 2px; }
   .import-review { border-top: 1px solid rgba(139,111,71,0.25); padding-top: 14px; margin-top: 6px; }
   .import-review[hidden], .backup-btn[hidden] { display: none; }
+  .planner-box { border-top: 1px solid rgba(139,111,71,0.25); padding-top: 14px; margin-top: 6px; }
+
+  /* WHERE NEXT? SHEET */
+  .next-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 8px; }
+  .next-chip { min-height: 40px; padding: 8px 14px; border-radius: 20px; border: 1px solid rgba(139,111,71,0.4); background: #fff; color: #6e5636; font-family: var(--sans); font-size: 0.8rem; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .next-chip.active { background: #8b6f47; border-color: #8b6f47; color: #fff; }
+  .next-note { font-size: 0.78rem; color: #6e5636; line-height: 1.45; margin-bottom: 12px; }
+  .next-card { background: #fff; border: 1px solid rgba(139,111,71,0.25); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+  .next-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .next-name { font-family: var(--serif); font-size: 1.15rem; color: #1a1410; }
+  .next-kind { flex-shrink: 0; font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.07em; color: #6e5636; }
+  .next-tip { font-size: 0.85rem; color: #8b6f47; font-style: italic; margin: 4px 0 8px; line-height: 1.4; }
+  .next-reasons { list-style: none; display: grid; gap: 5px; font-size: 0.82rem; color: #1a1410; line-height: 1.45; }
+  .next-reasons li { padding-left: 14px; position: relative; overflow-wrap: anywhere; }
+  .next-reasons li::before { content: '·'; position: absolute; left: 3px; color: #8b6f47; font-weight: 700; }
+  .next-reasons a { color: #a5281b; }
+  .next-stops { font-size: 0.8rem; color: #6e5636; margin-top: 8px; line-height: 1.45; overflow-wrap: anywhere; }
+  .next-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .next-actions button, .next-actions a { min-height: 40px; padding: 8px 14px; border-radius: 18px; border: 1px solid #c0392b; background: #fff; color: #a5281b; font-family: var(--sans); font-size: 0.8rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; cursor: pointer; }
+  .next-empty { font-size: 0.85rem; color: #6e5636; padding: 8px 0 16px; line-height: 1.5; }
 </style>
 </head>
 <body style="background:#f5f0e8;color:#1a1410">
@@ -229,6 +254,7 @@
         <span class="stats-inline" id="stats-inline">…</span>
       </div>
       <div class="header-actions">
+        <button class="map-btn" id="next-btn" onclick="openNextSheet()">✦ Next</button>
         <button class="map-btn" id="backup-btn" onclick="openBackupSheet()">⇅ Backup</button>
         <button class="map-btn" id="map-all-btn" onclick="openMapPanel()">🗺 Map</button>
       </div>
@@ -262,6 +288,12 @@
     <button class="backup-btn" onclick="document.getElementById('import-file').click()">Restore from a backup<small>Choose a London List .json file</small></button>
     <button class="backup-btn" id="undo-import-btn" onclick="undoImport()" hidden>Undo last import<small id="undo-import-meta"></small></button>
     <input type="file" id="import-file" accept="application/json,.json" hidden onchange="readImportFile(this)">
+    <div class="planner-box">
+      <p class="backup-text"><strong>Planner data</strong> · <span id="planner-meta"></span><br>Your Getty shoots, On Foot posts and sales by area, for “Where next?”. It stays in this browser only.</p>
+      <button class="backup-btn" onclick="document.getElementById('planner-file').click()">Load planner data<small>Choose planner.json from iCloud Drive › London List</small></button>
+      <button class="backup-btn" id="planner-remove-btn" onclick="removePlanner()" hidden>Remove planner data<small>“Where next?” then uses your list alone</small></button>
+      <input type="file" id="planner-file" accept="application/json,.json" hidden onchange="readPlannerFile(this)">
+    </div>
     <div class="import-review" id="import-review" hidden>
       <p class="backup-text" id="import-summary"></p>
       <button class="backup-btn" onclick="applyImport('merge')">Merge into my list<small>Adds new places; places already here are updated from the file</small></button>
@@ -269,6 +301,22 @@
     </div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeBackupSheet()">Close</button>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop" id="next-backdrop" onclick="if (event.target === this) closeNextSheet()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>Where next?</h2>
+    <div class="next-filters" role="group" aria-label="Where to look">
+      <button class="next-chip active" id="next-london" type="button" onclick="setNextFrom('london')">Anywhere in London</button>
+      <button class="next-chip" id="next-here" type="button" onclick="setNextFrom('here')">Near me</button>
+      <button class="next-chip" id="next-trips" type="button" onclick="toggleTrips()" aria-pressed="false">Day trips too</button>
+    </div>
+    <p class="next-note" id="next-note"></p>
+    <div id="next-list"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeNextSheet()">Close</button>
     </div>
   </div>
 </div>
@@ -472,52 +520,8 @@ const AREA_RENAMES = {
   'Brixton & Tooting': 'Brixton & Clapham', // split; places without a location are asked about
 };
 
-const SEED = [
-  { area: "City & Clerkenwell", name: "St Bartholomew Hospital Museum", note: "North Wing hall & staircase — Mon, Tue & first Sun of month", tags: ["museum","history"] },
-  { area: "City & Clerkenwell", name: "Bunhill Row", note: "Named after burial mounds and windmills from the 1500s", tags: ["history"] },
-  { area: "City & Clerkenwell", name: "Petty France", note: "Named after a Huguenot community; French spoken here in the 16th c.", tags: ["history"] },
-  { area: "City & Clerkenwell", name: "Cock Lane", note: "Medieval cockfighting site, later linked to brothels and the 'Cock Lane Ghost'", tags: ["history"] },
-  { area: "City & Clerkenwell", name: "Houndsditch", note: "Follows former ditch outside London Wall, once a dumping ground", tags: ["history"] },
-  { area: "Holborn & Bloomsbury", name: "John Soane Museum", note: "Sir John Soane's extraordinary house-museum", tags: ["museum","art"] },
-  { area: "Holborn & Bloomsbury", name: "Ely Place", note: "Medieval privately-owned gated cul-de-sac; home to St Etheldreda's", tags: ["history"] },
-  { area: "Covent Garden & Strand", name: "Cleopatra's Needle time capsule", note: "Victorian cache beneath the 1878 obelisk: cigars, coins, bibles, photos", tags: ["history"] },
-  { area: "Westminster & Pimlico", name: "Giro's Grave", note: "Waterloo Place — tomb of German ambassador's dog, electrocuted 1934. Inscribed 'the Nazi Dog'", tags: ["history"] },
-  { area: "Westminster & Pimlico", name: "Garrison Chapel", note: "livinglondonhistory.com — traditional arts", tags: ["history","art"] },
-  { area: "Westminster & Pimlico", name: "Taj Hotel courtyard Shakespeare frieze", note: "Buckingham Gate", tags: ["history"], visited: true },
-  { area: "Westminster & Pimlico", name: "Checkerboard House Estate", note: "Page Street, Pimlico", tags: ["architecture"], visited: true },
-  { area: "South Bank & Waterloo", name: "Morley Gallery — Canterbury Tales mural & mosaics", note: "Near Waterloo / Lambeth", tags: ["art"] },
-  { area: "South Bank & Waterloo", name: "Giacometti's at Tate Modern", tags: ["art","museum"] },
-  { area: "South Bank & Waterloo", name: "Cardinal Cap Alley", note: "Narrow gated alley by the Globe; named for Cardinal Beaufort's red hat", tags: ["history"] },
-  { area: "South Bank & Waterloo", name: "Dog and Pot Holden statue", note: "Southwark Station", tags: ["art","history"], visited: true },
-  { area: "Southwark & Elephant", name: "Southwark Walking Routes", note: "12 themed self-guided walks: architecture, film, myths, art, Dulwich, flora, rebels, war in Walworth, food & more", tags: ["walk","history"] },
-  { area: "Southwark & Elephant", name: "Shawarma Hut", note: "Elephant and Castle", tags: ["food"], visited: true },
-  { area: "Soho & Chinatown", name: "Waxy's Little Sister — Guinness lift", note: "Near Chinatown", tags: ["history"], visited: true },
-  { area: "Kensington & Notting Hill", name: "Leighton House & Sambourne House", note: "High Street Ken — rbkc.gov.uk/museums", tags: ["museum","art"] },
-  { area: "Kensington & Notting Hill", name: "Japan House — Pictograms exhibition", note: "High Street Kensington", tags: ["art","museum"] },
-  { area: "Kensington & Notting Hill", name: "Books for Cooks — Test Kitchen lunch", note: "£10, starts 12 noon — Blenheim Crescent, Notting Hill", tags: ["food"] },
-  { area: "Hammersmith & Chiswick", name: "Oldest Wisteria in Europe", note: "Fuller's Brewery, Chiswick", tags: ["nature"] },
-  { area: "Marylebone & Regent's Park", name: "Regent's Park Elizabeth II Garden", tags: ["nature","walk"], visited: true },
-  { area: "Kings Cross", name: "Kings Cross Audio Story", note: "kingscrossstory.kingscross.co.uk", tags: ["history","walk"] },
-  { area: "Kings Cross", name: "Standard Hotel", note: "By Kings Cross station", tags: ["architecture"] },
-  { area: "Kings Cross", name: "Keystone Crescent", note: "By Kings Cross", tags: ["history"], visited: true },
-  { area: "Islington", name: "Indian Veg Buffet", note: "Chapel Market", tags: ["food"] },
-  { area: "Finsbury Park & Holloway", name: "JoJo's Kitchen", note: "Ethiopian — Blackstock Road, Finsbury Park", tags: ["food"] },
-  { area: "Finsbury Park & Holloway", name: "Parkland Walk", note: "Finsbury Park to Alexandra Palace via Highgate — 5 miles, great views", tags: ["walk","nature"] },
-  { area: "Finsbury Park & Holloway", name: "Hujra", note: "Afghan restaurant, Holloway Road", tags: ["food"] },
-  { area: "Finsbury Park & Holloway", name: "Mesi's Kitchen", note: "Ethiopian restaurant, Holloway Road", tags: ["food"] },
-  { area: "Stoke Newington", name: "Londis N16", note: "Indian home-cooked food", tags: ["food"] },
-  { area: "Stoke Newington", name: "Sutton House", note: "Tudor house, National Trust — Hackney", tags: ["museum","history"] },
-  { area: "Hackney & Bethnal Green", name: "Broadway Market", note: "Saturday market — good to explore further", tags: ["walk","food"] },
-  { area: "Hackney & Bethnal Green", name: "Pellicci Cafe", note: "Bethnal Green — legendary East End caff, Grade II listed interior", tags: ["food"] },
-  { area: "Brixton & Clapham", name: "Maureen's Brixton Kitchen — Jerk Chicken", tags: ["food"], visited: true },
-  { area: "Tooting & Balham", name: "Dawat", note: "Tooting — kebab in naan, £2.49", tags: ["food"] },
-  { area: "Peckham & Camberwell", name: "Peckham Library", note: "Architecture Prize winner — striking orange canopy", tags: ["architecture"], visited: true },
-  { area: "Greenwich & Deptford", name: "Greenwich", tags: ["walk","history","museum"], visited: true },
-  { area: "Greenwich & Deptford", name: "The Line Walk", note: "Docklands sculpture trail — Bill Nighy narration on Bloomberg Connects app", tags: ["walk","art"] },
-  { area: "Greenwich & Deptford", name: "Deptford Town Hall", note: "Near Greenwich — see Lookup London post", tags: ["architecture","history"] },
-  { area: "All over London", name: "Mark Wallinger's Labyrinth", note: "270 enamel artworks — one at each Underground station; 150th anniversary, 2013", tags: ["art","walk"] },
-  { area: "All over London", name: "Cabmen's Shelters", note: "13 surviving green huts from 1875 — shelter and food for cab drivers", tags: ["history"] },
-];
+// No starter places: your list lives in this browser and in your backups, never in the site's code.
+const SEED = [];
 
 
 const tagColors = {
@@ -580,6 +584,8 @@ function normalisePlace(raw) {
     note: cleanText(raw.note, MAX_NOTE) || null,
     tags,
     visited: raw.visited === true,
+    // Day you ticked it (YYYY-MM-DD); null for places ticked before dates were kept.
+    visitedAt: raw.visited === true && typeof raw.visitedAt === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(raw.visitedAt) ? raw.visitedAt : null,
     areaByUser: raw.areaByUser === true,
     ...cleanLocation(raw),
   };
@@ -757,12 +763,13 @@ function filteredPlaces() {
   });
 }
 
-function openMapPanel() {
-  const visible = filteredPlaces();
+// openMapPanel() shows the current filter; openMapPanel(list, title) shows a chosen set.
+function openMapPanel(list, title) {
+  const visible = Array.isArray(list) ? list : filteredPlaces();
   if (!visible.length) { showToast('No places to show'); return; }
   mapVisible = visible;
-  document.getElementById('map-panel-title').textContent =
-    activeArea !== 'all' ? activeArea : activeRegion !== 'all' ? activeRegion : 'All places';
+  document.getElementById('map-panel-title').textContent = title ||
+    (activeArea !== 'all' ? activeArea : activeRegion !== 'all' ? activeRegion : 'All places');
   document.getElementById('map-panel').classList.add('open');
   document.body.style.overflow = 'hidden';
   renderMapBar();
@@ -1271,13 +1278,15 @@ function renderItem(grid, p) {
 function toggleVisited(id) {
   const p = places.find(x => x.id === id);
   if (!p) return;
+  const before = { visited: p.visited, visitedAt: p.visitedAt };
   p.visited = !p.visited;
+  p.visitedAt = p.visited ? todayISO() : null;
   savePlaces(places);
   render();
   // The place disappears from the current list, so offer a real Undo.
   showToast(p.visited ? `“${p.name}” marked visited` : `“${p.name}” back on your list`, {
     label: 'Undo',
-    onAction: () => { p.visited = !p.visited; savePlaces(places); render(); },
+    onAction: () => { Object.assign(p, before); savePlaces(places); render(); },
   });
 }
 
@@ -1945,6 +1954,7 @@ function openBackupSheet() {
     `${places.length} place${places.length !== 1 ? 's' : ''} · ` +
     (last ? `Last backup ${formatDate(last)}` : 'No backup saved from this device yet');
   refreshUndoImport();
+  refreshPlannerMeta();
   pendingImport = null;
   document.getElementById('import-review').hidden = true;
   document.getElementById('backup-backdrop').classList.add('open');
@@ -2114,6 +2124,280 @@ function startFresh() {
   savePlaces(places);
   buildAreaPicker(); render();
 }
+
+// ── WHERE NEXT? ───────────────────────────────────────────────────────────────
+// Suggests half-day outings from the places still on your list and, once planner
+// data is loaded, from your Getty shoots (where, when, what time of day), On Foot
+// posts and how well each area's photos sell. The planner file is built on the Mac
+// by tools/build_planner.py and kept only in this browser; it is never part of the site.
+const PLANNER_KEY = 'll-planner';
+const SEASONS = ['winter', 'winter', 'spring', 'spring', 'spring', 'summer', 'summer', 'summer', 'autumn', 'autumn', 'autumn', 'winter'];
+const SLOTS = [['early morning', 0, 9], ['morning', 9, 12], ['midday', 12, 14], ['afternoon', 14, 17], ['evening', 17, 24]];
+const SLOT_PREFERENCE = ['morning', 'early morning', 'evening', 'afternoon', 'midday'];
+let planner = loadPlanner();
+let nextFrom = 'london';   // 'london' | 'here'
+let nextTrips = false;
+let herePos = null;        // [lat, lon] while "Near me" is on
+
+function todayISO() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+function loadPlanner() {
+  try {
+    const d = JSON.parse(storageGet(PLANNER_KEY));
+    return d && d.app === 'london-list-planner' && d.areas && typeof d.areas === 'object' ? d : null;
+  } catch (e) { return null; }
+}
+async function readPlannerFile(input) {
+  const file = input.files && input.files[0];
+  input.value = '';
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { showToast('That file is too big to be planner data'); return; }
+  let d;
+  try { d = JSON.parse(await file.text()); } catch (e) { showToast('That file isn’t valid JSON'); return; }
+  if (!d || d.app !== 'london-list-planner' || !d.areas || typeof d.areas !== 'object') {
+    showToast('That isn’t a planner file — choose planner.json'); return;
+  }
+  if (!storageSet(PLANNER_KEY, JSON.stringify(d))) { showToast('Couldn’t save the planner data — storage is full'); return; }
+  planner = d;
+  refreshPlannerMeta();
+  showToast('Planner data loaded');
+}
+function removePlanner() {
+  try { localStorage.removeItem(PLANNER_KEY); } catch (e) {}
+  planner = null;
+  refreshPlannerMeta();
+  showToast('Planner data removed');
+}
+function refreshPlannerMeta() {
+  document.getElementById('planner-meta').textContent = planner ? `built ${formatDate(planner.builtAt)}` : 'not loaded';
+  document.getElementById('planner-remove-btn').hidden = !planner;
+}
+
+function seasonOf(iso) { return SEASONS[Number(String(iso).slice(5, 7)) - 1] || ''; }
+function slotIndex(hhmm) { const h = Number(String(hhmm).slice(0, 2)); return SLOTS.findIndex(s => h >= s[1] && h < s[2]); }
+function shootSlots(s) {
+  if (!Array.isArray(s.t)) return [];
+  const a = slotIndex(s.t[0]), b = slotIndex(s.t[1]);
+  if (a < 0 || b < 0) return [];
+  return SLOTS.slice(a, b + 1).map(x => x[0]);
+}
+function monthsSince(iso) { return (Date.now() - new Date(iso).getTime()) / (30.44 * 864e5); }
+function monthYear(iso) { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }); }
+function dayMonthYear(iso) { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); }
+function listWords(words) { return words.length < 2 ? words.join('') : words.slice(0, -1).join(', ') + ' and ' + words[words.length - 1]; }
+
+// A short walk through the places: start where they're densest, then keep to the
+// nearest next place while the legs stay short. Half a day: up to 6 stops, about 6 km.
+function pickRoute(ps) {
+  const located = ps.filter(hasLocation);
+  if (located.length < 2) return { stops: located.length ? located : ps.slice(0, 5), km: 0 };
+  const d = (a, b) => distanceKm(a.lat, a.lon, b.lat, b.lon);
+  let start = located[0], best = -1;
+  located.forEach(p => {
+    const n = located.filter(q => d(p, q) < 1.2).length;
+    if (n > best) { best = n; start = p; }
+  });
+  const stops = [start], left = located.filter(p => p !== start);
+  let km = 0;
+  while (stops.length < 6 && left.length) {
+    const cur = stops[stops.length - 1];
+    left.sort((a, b) => d(cur, a) - d(cur, b));
+    const leg = d(cur, left[0]);
+    if (leg > 2 || km + leg > 6) break;
+    km += leg; stops.push(left.shift());
+  }
+  return { stops, km };
+}
+
+function makeCandidate(name, kind, centre, ps, data) {
+  const season = SEASONS[new Date().getMonth()];
+  const route = pickRoute(ps);
+  const shoots = (data && data.shoots) || [];
+  const blog = (data && data.blog) || [];
+  const last = shoots[shoots.length - 1] || null;
+  const seasonsShot = new Set(shoots.map(s => seasonOf(s.d)));
+  const slotsShot = new Set(shoots.flatMap(shootSlots));
+  const fruit = data && typeof data.fruit === 'number' ? data.fruit : null;
+  const lastPost = blog[blog.length - 1] || null;
+
+  let score = 1.2 * Math.min(route.stops.length, 5) / 5;
+  if (planner) {
+    if (!last) score += 0.6 + 0.3 * (fruit ?? 0.3);   // new ground for photos
+    else score += Math.min(1, monthsSince(last.d) / 6) * (0.4 + 0.6 * (fruit ?? 0.3)) + (seasonsShot.has(season) ? 0 : 0.25);
+    if (lastPost && monthsSince(lastPost.d) < 6) score -= 0.15;   // written up recently
+  }
+  let dist = null;
+  if (herePos && centre) {
+    dist = distanceKm(herePos[0], herePos[1], centre[0], centre[1]);
+    score -= Math.min(1.5, dist / 10);
+  }
+  if (kind === 'trip') score -= 0.3;   // the journey eats into half a day
+  if (!route.stops.length && !shoots.length && !blog.length) score = -Infinity;   // nothing to go on
+  const slot = SLOT_PREFERENCE.find(x => !slotsShot.has(x)) || 'morning';
+  return { name, kind, centre, route, extra: ps.length - route.stops.length, shoots, blog, last, lastPost,
+           fruit, sold: (data && data.sold) || [], seasonsShot, slotsShot, season, slot, dist, score };
+}
+
+function nextCandidates() {
+  const open = places.filter(p => !p.visited);
+  const out = [];
+  Object.keys(AREA_POINTS).forEach(area => {
+    out.push(makeCandidate(area, 'area', AREA_COORDS[area], open.filter(p => p.area === area), planner && planner.areas[area]));
+  });
+  if (nextTrips) {
+    const used = new Set();
+    Object.entries((planner && planner.outside) || {}).forEach(([name, o]) => {
+      const near = open.filter(p => hasLocation(p) && distanceKm(p.lat, p.lon, o.lat, o.lon) < 5);
+      near.forEach(p => used.add(p.id));
+      out.push(makeCandidate(name, 'trip', [o.lat, o.lon], near, o));
+    });
+    // Further-afield places on your list that aren't near anywhere you've been: group them.
+    let rest = open.filter(p => p.area === FURTHER && hasLocation(p) && !used.has(p.id));
+    while (rest.length) {
+      const first = rest[0];
+      const group = rest.filter(p => distanceKm(p.lat, p.lon, first.lat, first.lon) < 5);
+      rest = rest.filter(p => !group.includes(p));
+      out.push(makeCandidate('Near ' + first.name, 'trip', [first.lat, first.lon], group, null));
+    }
+  }
+  return out.filter(c => c.score > -Infinity).sort((a, b) => b.score - a.score).slice(0, 5);
+}
+
+function nextReasons(c) {
+  const r = [];   // [text] or [text, {href, label}]
+  const n = c.route.stops.length;
+  if (n) {
+    let t = `${n} place${n !== 1 ? 's' : ''} on your list`;
+    if (c.route.km >= 0.3) t += `, about ${c.route.km.toFixed(1)} km on foot`;
+    if (c.extra > 0) t += ` (${c.extra} more here)`;
+    r.push([t]);
+  } else if (c.kind === 'area') {
+    r.push(['Nothing on your list here yet']);
+  }
+  if (planner) {
+    if (!c.last) r.push(['Not photographed yet']);
+    else {
+      const slots = listWords(SLOTS.map(s => s[0]).filter(s => c.slotsShot.has(s)));
+      r.push([`Last photographed ${dayMonthYear(c.last.d)} (${c.last.p})` + (slots ? `, ${slots}` : '') +
+              (c.shoots.length > 1 ? ` · ${c.shoots.length} shoots in all` : '')]);
+    }
+    if (c.fruit !== null) {
+      const ex = c.sold[0] ? `, e.g. “${c.sold[0]}”` : '';
+      if (c.fruit >= 0.6) r.push([`Photos from here sell well${ex}`]);
+      else if (c.fruit >= 0.3) r.push([`Some sales from here${ex}`]);
+    }
+    if (c.lastPost) r.push([`On Foot: “${c.lastPost.title}”, ${monthYear(c.lastPost.d)}`, { href: c.lastPost.url, label: 'Read' }]);
+  }
+  const walk = c.route.stops.find(p => (p.tags || []).includes('walk'));
+  if (walk && !c.lastPost) r.push([`No On Foot post here yet — “${walk.name}” could be one`]);
+  if (c.dist !== null) r.push([`${c.dist < 10 ? c.dist.toFixed(1) : Math.round(c.dist)} km from you`]);
+  return r;
+}
+
+function nextTip(c) {
+  if (!planner) return '';
+  const newSeason = c.last && !c.seasonsShot.has(c.season);
+  if (!c.last) return `Go in the ${c.slot}.`;
+  if (newSeason) return `Go in the ${c.slot}: you’ve never photographed here in ${c.season}.`;
+  if (!c.slotsShot.has(c.slot)) return `Go in the ${c.slot}: a time of day you haven’t shot here.`;
+  return `Go in the ${c.slot}.`;
+}
+
+function renderNext() {
+  document.getElementById('next-london').classList.toggle('active', nextFrom === 'london');
+  document.getElementById('next-here').classList.toggle('active', nextFrom === 'here');
+  const trips = document.getElementById('next-trips');
+  trips.classList.toggle('active', nextTrips);
+  trips.setAttribute('aria-pressed', String(nextTrips));
+  trips.hidden = !(planner && planner.outside && Object.keys(planner.outside).length) && !places.some(p => p.area === FURTHER && !p.visited);
+  document.getElementById('next-note').textContent = planner
+    ? `Using your list, ${countShoots()} Getty shoots, ${countPosts()} On Foot posts and sales by area (planner data built ${dayMonthYear(planner.builtAt)}).`
+    : 'Using your list only. Load planner data in Backup to add your Getty shoots, On Foot posts and sales.';
+
+  const box = document.getElementById('next-list');
+  box.innerHTML = '';
+  const cands = nextCandidates();
+  if (!cands.length) {
+    const p = document.createElement('p');
+    p.className = 'next-empty';
+    p.textContent = 'Nothing to suggest yet. Add places with the + button, or load planner data in Backup.';
+    box.appendChild(p);
+    return;
+  }
+  cands.forEach(c => {
+    const card = document.createElement('section');
+    card.className = 'next-card';
+    const head = document.createElement('div'); head.className = 'next-head';
+    const nm = document.createElement('div'); nm.className = 'next-name'; nm.textContent = c.name;
+    const kind = document.createElement('div'); kind.className = 'next-kind';
+    kind.textContent = c.kind === 'trip' ? 'Day trip' : regionOf(c.name);
+    head.append(nm, kind);
+    card.appendChild(head);
+    const tip = nextTip(c);
+    if (tip) { const t = document.createElement('p'); t.className = 'next-tip'; t.textContent = tip; card.appendChild(t); }
+    const ul = document.createElement('ul'); ul.className = 'next-reasons';
+    nextReasons(c).forEach(([text, link]) => {
+      const li = document.createElement('li');
+      li.append(text);
+      if (link && /^https:\/\//.test(link.href)) {
+        const a = document.createElement('a');
+        a.href = link.href; a.target = '_blank'; a.rel = 'noopener'; a.textContent = link.label;
+        li.append(' · ', a);
+      }
+      ul.appendChild(li);
+    });
+    card.appendChild(ul);
+    if (c.route.stops.length) {
+      const st = document.createElement('p'); st.className = 'next-stops';
+      st.textContent = c.route.stops.map(p => p.name).join(' → ');
+      card.appendChild(st);
+    }
+    const actions = document.createElement('div'); actions.className = 'next-actions';
+    const onMap = c.route.stops.filter(hasLocation);
+    if (onMap.length) {
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = 'Show on map';
+      b.onclick = () => { closeNextSheet(); openMapPanel(onMap, c.name); };
+      actions.appendChild(b);
+    }
+    if (c.kind === 'trip' && c.centre) {
+      const a = document.createElement('a');
+      a.href = `https://maps.apple.com/?daddr=${c.centre[0]},${c.centre[1]}`;
+      a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Directions';
+      actions.appendChild(a);
+    }
+    if (actions.children.length) card.appendChild(actions);
+    box.appendChild(card);
+  });
+}
+function countShoots() {
+  const all = [...Object.values(planner.areas || {}), ...Object.values(planner.outside || {})];
+  return new Set(all.flatMap(a => (a.shoots || []).map(s => s.d + s.p))).size;
+}
+function countPosts() {
+  const all = [...Object.values(planner.areas || {}), ...Object.values(planner.outside || {})];
+  return new Set(all.flatMap(a => (a.blog || []).map(b => b.url))).size;
+}
+
+function openNextSheet() {
+  renderNext();
+  document.getElementById('next-backdrop').classList.add('open');
+}
+function closeNextSheet() { document.getElementById('next-backdrop').classList.remove('open'); }
+function setNextFrom(from) {
+  if (from === 'london') { nextFrom = 'london'; herePos = null; renderNext(); return; }
+  if (!navigator.geolocation) { showToast('Location isn’t available on this device.'); return; }
+  showToast('Finding where you are…');
+  navigator.geolocation.getCurrentPosition(pos => {
+    herePos = [pos.coords.latitude, pos.coords.longitude];
+    nextFrom = 'here';
+    hideToast();
+    renderNext();
+  }, () => showToast('Couldn’t get your location — check Safari’s location setting.'),
+  { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 });
+}
+function toggleTrips() { nextTrips = !nextTrips; renderNext(); }
 
 setupPickers();
 buildAreaPicker();

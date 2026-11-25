@@ -1,0 +1,5 @@
+# Planner data is private: it must never be committed or published.
+planner*.json
+deepmeta*.json
+lr-capture-times*.json
+__pycache__/
