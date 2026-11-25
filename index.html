@@ -140,13 +140,29 @@
   .loc-result:active { background: rgba(139,111,71,0.09); }
   .loc-result-name { display: block; font-size: 0.92rem; color: #1a1410; font-weight: 500; }
   .loc-result-addr { display: block; font-size: 0.75rem; color: #6e5636; margin-top: 2px; }
-  .loc-actions { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 4px; }
+  .loc-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .loc-chip { background: #fff; border: 1px solid rgba(192,57,43,0.45); color: #a5281b; font-family: var(--sans); font-size: 0.85rem; padding: 8px 14px; min-height: 40px; border-radius: 20px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .loc-chip:active { background: #fdf0ee; }
   .loc-link { background: none; border: none; color: #a5281b; font-family: var(--sans); font-size: 0.82rem; padding: 10px 2px; min-height: 44px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .loc-chosen { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid rgba(139,111,71,0.25); border-radius: 8px; padding: 6px 6px 6px 12px; }
   .loc-chosen-body { flex: 1; min-width: 0; }
   .loc-chosen-name { font-size: 0.9rem; color: #1a1410; font-weight: 500; }
   .loc-chosen-addr { font-size: 0.75rem; color: #6e5636; margin-top: 2px; overflow-wrap: anywhere; }
-  .item-flag { display: inline-block; font-size: 0.62rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #a5281b; border: 1px solid rgba(192,57,43,0.4); border-radius: 8px; padding: 0 6px; margin-left: 4px; vertical-align: 1px; }
+  .item-flag { display: inline-block; font-family: var(--sans); font-size: 0.66rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #a5281b; background: #fdf0ee; border: 1px solid rgba(192,57,43,0.45); border-radius: 10px; padding: 5px 9px; margin: -4px 0 -4px 6px; vertical-align: 1px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .item-flag:active { background: #f8dcd7; }
+
+  /* "NEEDS A LOCATION" BANNER IN THE LIST */
+  .needs-banner { margin: 14px 16px 0; padding: 10px 10px 10px 14px; border-radius: 10px; background: #fff; border: 1px solid rgba(192,57,43,0.35); display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: #1a1410; }
+  .needs-banner span { flex: 1; }
+  .needs-banner button { background: #c0392b; color: #fff; border: none; border-radius: 18px; padding: 10px 16px; min-height: 44px; font-family: var(--sans); font-size: 0.82rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+
+  /* CHOOSE LOCATIONS SHEET */
+  .review-progress { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.07em; color: #6e5636; margin-bottom: 6px; }
+  #review-backdrop .modal h2 { margin-bottom: 4px; color: #1a1410; }
+  .review-meta { font-size: 0.8rem; color: #6e5636; margin-bottom: 6px; }
+  .review-note { font-size: 0.82rem; color: #4a3b28; font-style: italic; margin-bottom: 14px; line-height: 1.45; overflow-wrap: anywhere; }
+  .review-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .review-actions button { flex: 1 1 auto; min-height: 44px; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(139,111,71,0.35); background: transparent; font-family: var(--sans); font-size: 0.85rem; color: #6e5636; cursor: pointer; }
 
   /* MAP BAR */
   .map-bar { background: #2a211b; color: #f5f0e8; font-size: 0.78rem; line-height: 1.4; padding: 8px 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; flex-shrink: 0; }
@@ -271,6 +287,26 @@
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
       <button class="btn-save" onclick="savePlace()">Save place</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHOOSE LOCATIONS -->
+<div class="modal-backdrop" id="review-backdrop" onclick="if (event.target === this) closeReview()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="review-progress" id="review-progress"></div>
+    <h2 id="review-name"></h2>
+    <div class="review-meta" id="review-meta"></div>
+    <div class="review-note" id="review-note"></div>
+    <div class="field">
+      <label>Where is it?</label>
+      <div id="r-loc" class="loc-picker"></div>
+    </div>
+    <div class="review-actions">
+      <button type="button" onclick="reviewNoFixed()">No single place</button>
+      <button type="button" onclick="reviewSkip()">Skip</button>
+      <button type="button" onclick="closeReview()">Done</button>
     </div>
   </div>
 </div>
@@ -471,9 +507,13 @@ function cleanLocation(raw) {
     lon: ok ? Math.round(lon * 1e6) / 1e6 : null,
     address: ok ? (cleanText(raw.address, 200) || null) : null,
     locCheck: !ok && raw.locCheck === true,
+    noFixedLocation: !ok && raw.noFixedLocation === true, // walks, statues across London, etc.
   };
 }
 function hasLocation(p) { return Number.isFinite(p.lat) && Number.isFinite(p.lon); }
+// Places that should be on the map but aren't yet.
+function wantsLocation(p) { return !hasLocation(p) && !p.noFixedLocation && p.area !== 'Anywhere (Underground)'; }
+function needsChoosing() { return places.filter(p => wantsLocation(p) && p.locCheck); }
 
 // Normalise a list: drop unusable records and make sure every id is unique.
 function normaliseList(list) {
@@ -702,15 +742,22 @@ function renderMapBar() {
   bar.innerHTML = '';
   if (findingLocations) { bar.textContent = findingLocations; bar.hidden = false; return; }
   const located = mapVisible.filter(hasLocation).length;
-  const missing = mapVisible.filter(p => !hasLocation(p) && p.area !== 'Anywhere (Underground)');
+  const missing = mapVisible.filter(wantsLocation);
   const toCheck = missing.filter(p => p.locCheck).length;
   const toFind = missing.length - toCheck;
   bar.hidden = !missing.length;
   if (!missing.length) return;
   const text = document.createElement('span');
   text.textContent = `${located} of ${located + missing.length} on the map.` +
-    (toCheck ? ` ${toCheck} ${toCheck === 1 ? 'needs' : 'need'} you to choose (marked “Location?” in the list).` : '');
+    (toCheck ? ` ${toCheck} ${toCheck === 1 ? 'needs' : 'need'} you to choose.` : '');
   bar.appendChild(text);
+  if (toCheck) {
+    const b = document.createElement('button');
+    b.className = 'map-bar-btn';
+    b.textContent = `Choose ${toCheck}`;
+    b.onclick = () => openReview();
+    bar.appendChild(b);
+  }
   if (toFind) {
     const b = document.createElement('button');
     b.className = 'map-bar-btn';
@@ -748,20 +795,33 @@ function areaAgrees(p, c) {
     .some(([aLat, aLon]) => distanceKm(c.lat, c.lon, aLat, aLon) <= 2);
 }
 
-// "Morley Gallery — Canterbury Tales mural" → also try "Morley Gallery";
-// "Giacometti's at Tate Modern" → also try "Tate Modern".
-function searchTerms(name) {
-  const terms = [name];
+// Searches to try for a place, each with the name a result must match:
+// "Morley Gallery — Canterbury Tales mural" → also "Morley Gallery";
+// "Giacometti's at Tate Modern" → also "Tate Modern";
+// note "Ethiopian — Blackstock Road, Finsbury Park" → also "JoJo's Kitchen Blackstock Road".
+function searchTerms(name, note) {
+  const terms = [{ q: name, match: name }];
   const main = name.split(/\s+[—–-]\s+/)[0].trim();
-  if (main && main !== name) terms.push(main);
+  if (main && main !== name) terms.push({ q: main, match: main });
   const at = main.split(/\s+at\s+/i);
-  if (at.length === 2 && at[1].trim()) terms.push(at[1].trim());
-  return [...new Set(terms)];
+  if (at.length === 2 && at[1].trim()) terms.push({ q: at[1].trim(), match: at[1].trim() });
+  noteStreets(note).forEach(seg => terms.push({ q: `${main} ${seg}`, match: main }));
+  const seen = new Set();
+  return terms.filter(t => !seen.has(t.q.toLowerCase()) && seen.add(t.q.toLowerCase()));
+}
+// Bits of a note that look like a street or neighbourhood ("Blackstock Road", "Chapel Market").
+function noteStreets(note) {
+  if (!note) return [];
+  return note.split(/\s*[—–·,;()]\s*|\s+-\s+/)
+    .map(s => s.trim())
+    .filter(s => s.length >= 4 && s.length <= 40 && /[a-z]{3}/i.test(s) && !/https?:|www\.|\.(com|co|uk|org)|@|£|\d{1,2}(am|pm)/i.test(s))
+    .filter(s => /\b(road|rd|street|st|lane|place|square|sq|market|row|crescent|terrace|gardens|walk|hill|park|green|bridge|yard|court|gate|way|alley|circus|estate|station)\b/i.test(s))
+    .slice(0, 2);
 }
 
 async function findLocations() {
   if (findingLocations) return;
-  const targets = places.filter(p => !hasLocation(p) && !p.locCheck && p.area !== 'Anywhere (Underground)');
+  const targets = places.filter(p => wantsLocation(p) && !p.locCheck);
   if (!targets.length) return;
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   let found = 0, unsure = 0, skipped = 0, failuresInARow = 0, stopped = false;
@@ -769,11 +829,11 @@ async function findLocations() {
     const p = targets[i];
     findingLocations = `Finding locations… ${i + 1} of ${targets.length}`;
     renderMapBar();
-    const terms = searchTerms(p.name);
-    const accept = (list, term) => list.find(c => namesMatch(term, c.name) && areaAgrees(p, c));
+    const terms = searchTerms(p.name, p.note);
+    const accept = (list, term) => list.find(c => namesMatch(term.match, c.name) && areaAgrees(p, c));
     let match = null, anyAnswer = false;
     for (const term of terms) {
-      try { match = accept(await searchPhoton(term, undefined, 4), term); anyAnswer = true; } catch (e) {}
+      try { match = accept(await searchPhoton(term.q, undefined, 4), term); anyAnswer = true; } catch (e) {}
       if (match) break;
       await sleep(300);
     }
@@ -781,7 +841,7 @@ async function findLocations() {
       // Second opinion from Nominatim, which knows some names Photon doesn't (max 1 request a second).
       const term = terms[terms.length > 1 ? 1 : 0];
       await sleep(1100);
-      try { match = accept(await searchNominatim(term), term); anyAnswer = true; } catch (e) {}
+      try { match = accept(await searchNominatim(term.q), term); anyAnswer = true; } catch (e) {}
     }
     if (match) {
       p.lat = match.lat; p.lon = match.lon; p.address = match.address || null; p.locCheck = false;
@@ -802,7 +862,7 @@ async function findLocations() {
   mapVisible = filteredPlaces();
   renderMapBar(); drawMarkers();
   showToast((stopped ? 'Stopped — check your connection. ' : '') + `Found ${found}.` +
-    (unsure ? ` ${unsure} ${unsure === 1 ? 'needs' : 'need'} you to choose — hold one in the list to edit.` : '') +
+    (unsure ? ` ${unsure} ${unsure === 1 ? 'needs' : 'need'} you to choose — tap “Choose”.` : '') +
     (skipped && !stopped ? ` ${skipped} couldn’t be looked up; try again later.` : ''));
 }
 
@@ -870,6 +930,19 @@ function render() {
 
   const areas = activeArea === 'all' ? allAreas() : [activeArea];
 
+  const toChoose = storageProblem ? 0 : needsChoosing().length;
+  if (toChoose) {
+    const nb = document.createElement('div');
+    nb.className = 'needs-banner';
+    const t = document.createElement('span');
+    t.textContent = `${toChoose} place${toChoose !== 1 ? 's' : ''} need${toChoose === 1 ? 's' : ''} a location`;
+    const b = document.createElement('button');
+    b.textContent = 'Choose now';
+    b.onclick = () => openReview();
+    nb.append(t, b);
+    container.appendChild(nb);
+  }
+
   if (activeArea !== 'all') {
     const count = places.filter(p => p.area === activeArea && itemVisible(p)).length;
     const bar = document.createElement('div');
@@ -913,11 +986,17 @@ function renderItem(grid, p) {
   el.innerHTML = `
     <div class="item-check">${p.visited ? '✓' : ''}</div>
     <div class="item-body">
-      <div class="item-name">${esc(p.name)}${p.locCheck ? ' <span class="item-flag">Location?</span>' : ''}</div>
+      <div class="item-name">${esc(p.name)}${p.locCheck && wantsLocation(p) ? ' <button type="button" class="item-flag">Location?</button>' : ''}</div>
       ${p.note ? `<div class="item-note">${esc(p.note)}</div>` : ''}
     </div>
     ${tagHtml}
   `;
+  const flag = el.querySelector('.item-flag');
+  if (flag) {
+    // Its own control: don't start the hold timer or toggle visited.
+    flag.addEventListener('pointerdown', e => e.stopPropagation());
+    flag.addEventListener('click', e => { e.stopPropagation(); openReview(p.id); });
+  }
   // Tap = toggle visited. Hold (600 ms, finger kept still) = edit, and the
   // click that follows the hold is swallowed so it doesn't also toggle visited.
   let pressTimer = null, startX = 0, startY = 0, longPressed = false;
@@ -1175,13 +1254,13 @@ function createLocationPicker(root, opts) {
     </div>
     <div class="loc-search">
       <input type="search" class="loc-q" placeholder="Name, address, postcode or Maps link" autocomplete="off" autocapitalize="words" enterkeyhint="search" aria-label="Search for the location">
+      <div class="loc-actions">
+        <button type="button" class="loc-chip loc-here">◎ I’m here now</button>
+        <button type="button" class="loc-chip loc-harder">Search harder</button>
+        <button type="button" class="loc-chip loc-remove" hidden>No location</button>
+      </div>
       <div class="loc-status" aria-live="polite"></div>
       <div class="loc-results"></div>
-      <div class="loc-actions">
-        <button type="button" class="loc-link loc-here">◎ I’m here now</button>
-        <button type="button" class="loc-link loc-harder">Search harder</button>
-        <button type="button" class="loc-link loc-remove" hidden>No location</button>
-      </div>
     </div>`;
   const $ = sel => root.querySelector(sel);
   const q = $('.loc-q'), results = $('.loc-results'), status = $('.loc-status');
@@ -1251,7 +1330,7 @@ function createLocationPicker(root, opts) {
       found.push(...await (deep ? searchNominatim(text, ctrl.signal) : searchPhoton(text, ctrl.signal)));
     } catch (e) {
       if (e.name === 'AbortError') return;
-      if (id === reqId && !found.length) { results.innerHTML = ''; setStatus('Couldn’t search — check your connection.'); return; }
+      if (id === reqId && !found.length) { results.innerHTML = ''; setStatus(deep ? 'Couldn’t search — check your connection.' : 'Search isn’t responding. Tap Search harder to try another service.'); return; }
     }
     if (id !== reqId) return;
     const seen = new Set();
@@ -1267,6 +1346,40 @@ function createLocationPicker(root, opts) {
   function schedule(text) {
     clearTimeout(timer);
     timer = setTimeout(() => run(text, false), 350);
+  }
+
+  // Search several phrasings and show all the matches together.
+  async function runMany(queries, rank) {
+    const id = ++reqId;
+    if (ctrl) ctrl.abort();
+    ctrl = new AbortController();
+    setStatus('Searching…');
+    // Run the searches side by side; keep the order of the phrasings.
+    const settled = await Promise.allSettled(queries.map(text => searchPhoton(text, ctrl.signal, 5)));
+    if (id !== reqId) return;
+    let found = settled.flatMap(r => r.status === 'fulfilled' ? r.value : []);
+    if (settled.every(r => r.status === 'rejected')) {
+      // Photon unavailable: ask Nominatim instead, a few phrasings at most, one a second.
+      const tries = [...new Set([q.value, ...queries.slice().reverse()].filter(Boolean))].slice(0, 3);
+      let reached = false;
+      for (let i = 0; i < tries.length && !found.length; i++) {
+        if (i) await new Promise(r => setTimeout(r, 1100));
+        if (id !== reqId) return;
+        try { found = await searchNominatim(tries[i], ctrl.signal); reached = true; }
+        catch (e) { if (e.name === 'AbortError' || id !== reqId) return; }
+      }
+      if (id !== reqId) return;
+      if (!reached) { results.innerHTML = ''; setStatus('Couldn’t search — check your connection.'); return; }
+    }
+    const seen = new Set();
+    let unique = found.filter(c => {
+      const k = c.name.toLowerCase() + '|' + c.lat.toFixed(3) + '|' + c.lon.toFixed(3);
+      if (seen.has(k)) return false; seen.add(k); return true;
+    });
+    if (rank) unique = unique.map((c, i) => [rank(c), i, c]).sort((a, b) => a[0] - b[0] || a[1] - b[1]).map(x => x[2]);
+    unique = unique.slice(0, 8);
+    renderCandidates(unique);
+    setStatus(unique.length ? 'Tap the right one:' : 'No matches. Type a street, postcode, or try Search harder.');
   }
 
   q.addEventListener('input', () => { typed = true; schedule(q.value); });
@@ -1309,6 +1422,13 @@ function createLocationPicker(root, opts) {
     },
     // While changing, the old location is kept until a new one is picked or removed.
     get value() { return chosen || previous; },
+    // Start with the search box showing `shown`, but search all of `queries`.
+    searchFor(shown, queries, rank) {
+      clearTimeout(timer); typed = false; previous = null; chosen = null; showChosen();
+      $('.loc-remove').hidden = true;
+      q.value = shown; results.innerHTML = '';
+      runMany(queries, rank);
+    },
   };
 }
 
@@ -1416,7 +1536,7 @@ function saveEdit() {
   p.lat = loc ? loc.lat : null;
   p.lon = loc ? loc.lon : null;
   p.address = loc ? (loc.address || null) : null;
-  if (loc) p.locCheck = false;
+  if (loc) { p.locCheck = false; p.noFixedLocation = false; }
   savePlaces(places);
   closeEditModal();
   activeArea = p.area;
@@ -1433,7 +1553,82 @@ function deleteFromEdit() {
   render();
 }
 
+// ── CHOOSE LOCATIONS (one place at a time) ────────────────────────────────────
+let reviewQueue = [], reviewIndex = 0, reviewPicker = null;
+
+function openReview(startId) {
+  // The tapped place first, then the rest of those still to choose.
+  reviewQueue = needsChoosing().map(p => p.id).filter(id => id !== startId);
+  if (startId) reviewQueue.unshift(startId);
+  if (!reviewQueue.length) { showToast('Nothing left to choose'); return; }
+  reviewIndex = 0;
+  document.getElementById('review-backdrop').classList.add('open');
+  showReviewItem();
+}
+
+function showReviewItem() {
+  while (reviewIndex < reviewQueue.length) {
+    const p = places.find(x => x.id === reviewQueue[reviewIndex]);
+    if (p && wantsLocation(p)) break;
+    reviewIndex++;
+  }
+  if (reviewIndex >= reviewQueue.length) { closeReview(); showToast('All done'); return; }
+  const p = places.find(x => x.id === reviewQueue[reviewIndex]);
+  document.getElementById('review-progress').textContent = `Choose location · ${reviewIndex + 1} of ${reviewQueue.length}`;
+  document.getElementById('review-name').textContent = p.name;
+  document.getElementById('review-meta').textContent = [p.area, (p.tags || [])[0]].filter(Boolean).join(' · ');
+  document.getElementById('review-note').textContent = p.note || '';
+  // Search the name, its main part, name + street from the note, and the bare street
+  // (statues and friezes often only exist on the map as the street they're on).
+  const terms = searchTerms(p.name, p.note).map(t => t.q);
+  // Matches in the place's own area come first.
+  reviewPicker.searchFor(terms.length > 1 ? terms[1] : terms[0], [...terms, ...noteStreets(p.note)],
+    c => areaAgrees(p, c) ? 0 : 1);
+  document.querySelector('#review-backdrop .modal').scrollTop = 0;
+}
+
+function reviewCurrent() { return places.find(x => x.id === reviewQueue[reviewIndex]); }
+
+function reviewPicked(loc) {
+  const p = reviewCurrent();
+  if (!p || !loc) return;
+  const before = { lat: p.lat, lon: p.lon, address: p.address, area: p.area, locCheck: p.locCheck, noFixedLocation: p.noFixedLocation };
+  const index = reviewIndex;
+  p.lat = loc.lat; p.lon = loc.lon; p.address = loc.address || null;
+  p.locCheck = false; p.noFixedLocation = false;
+  const area = areaFor(loc.lat, loc.lon, loc.postcode);
+  if (area !== 'To Sort') p.area = area; // keep your own area if the spot is outside all of them
+  savePlaces(places);
+  buildAreaPicker(); render();
+  showToast(`${p.name}: ${p.area}`, { label: 'Undo', onAction: () => {
+    Object.assign(p, before); savePlaces(places); buildAreaPicker(); render();
+    if (document.getElementById('review-backdrop').classList.contains('open')) { reviewIndex = index; showReviewItem(); }
+  }});
+  reviewIndex++;
+  showReviewItem();
+}
+
+function reviewNoFixed() {
+  const p = reviewCurrent();
+  if (p) { p.noFixedLocation = true; p.locCheck = false; savePlaces(places); render(); }
+  reviewIndex++;
+  showReviewItem();
+}
+function reviewSkip() { reviewIndex++; showReviewItem(); }
+
+function closeReview() {
+  document.getElementById('review-backdrop').classList.remove('open');
+  buildAreaPicker(); render();
+  if (document.getElementById('map-panel').classList.contains('open')) {
+    mapVisible = filteredPlaces(); renderMapBar(); drawMarkers();
+  }
+}
+
 function setupPickers() {
+  reviewPicker = createLocationPicker(document.getElementById('r-loc'), {
+    getName: () => (reviewCurrent() || {}).name || '',
+    onChange: loc => { if (loc) reviewPicked(loc); },
+  });
   addPicker = createLocationPicker(document.getElementById('f-loc'), {
     getName: () => document.getElementById('f-name').value,
     onChange: loc => {
