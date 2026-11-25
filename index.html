@@ -73,7 +73,7 @@
   .items-grid { display: flex; flex-direction: column; gap: 1px; }
 
   /* ITEM */
-  .item { display: flex; align-items: flex-start; gap: 12px; padding: 11px 10px; border-radius: 8px; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; background: #f5f0e8; }
+  .item { display: flex; align-items: flex-start; gap: 12px; padding: 11px 10px; border-radius: 8px; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; background: #f5f0e8; }
   .item:active { background: rgba(139,111,71,0.09) !important; }
   .item.visited { opacity: 0.38; }
 
@@ -125,6 +125,24 @@
   #the-map { flex: 1; width: 100%; }
   .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1410; color: #f5f0e8; padding: 9px 18px; border-radius: 20px; font-size: 0.78rem; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 400; white-space: nowrap; }
   .toast.show { opacity: 1; }
+  .toast.has-action { pointer-events: auto; display: flex; align-items: center; gap: 14px; padding: 6px 6px 6px 18px; }
+  .toast-action { background: rgba(255,255,255,0.14); border: none; color: #f5f0e8; font-family: var(--sans); font-size: 0.78rem; font-weight: 600; padding: 8px 14px; border-radius: 16px; min-height: 36px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+
+  .header-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+  /* STORAGE PROBLEM BANNER */
+  .storage-banner { margin: 16px; padding: 14px 16px; border: 1px solid #c0392b; border-radius: 10px; background: #fdf0ee; color: #1a1410; font-size: 0.85rem; line-height: 1.45; }
+  .storage-banner strong { display: block; margin-bottom: 4px; color: #a5281b; }
+  .storage-banner .banner-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .storage-banner button { padding: 10px 14px; min-height: 44px; border-radius: 10px; border: 1px solid #c0392b; background: #fff; color: #a5281b; font-family: var(--sans); font-size: 0.82rem; cursor: pointer; }
+
+  /* BACKUP SHEET */
+  .backup-text { font-size: 0.85rem; color: #1a1410; line-height: 1.5; margin-bottom: 14px; }
+  .backup-meta { font-size: 0.75rem; color: #6e5636; margin-bottom: 16px; }
+  .backup-btn { display: block; width: 100%; text-align: left; padding: 14px 16px; min-height: 48px; margin-bottom: 10px; border: 1px solid rgba(139,111,71,0.35); border-radius: 10px; background: #fff; font-family: var(--sans); font-size: 0.9rem; color: #1a1410; cursor: pointer; }
+  .backup-btn small { display: block; font-size: 0.72rem; color: #6e5636; margin-top: 2px; }
+  .import-review { border-top: 1px solid rgba(139,111,71,0.25); padding-top: 14px; margin-top: 6px; }
+  .import-review[hidden], .backup-btn[hidden] { display: none; }
 </style>
 </head>
 <body style="background:#f5f0e8;color:#1a1410">
@@ -144,7 +162,10 @@
         <h1>London List</h1>
         <span class="stats-inline" id="stats-inline">…</span>
       </div>
-      <button class="map-btn" id="map-all-btn" onclick="openMapPanel()">🗺 Map</button>
+      <div class="header-actions">
+        <button class="map-btn" id="backup-btn" onclick="openBackupSheet()">⇅ Backup</button>
+        <button class="map-btn" id="map-all-btn" onclick="openMapPanel()">🗺 Map</button>
+      </div>
     </div>
     <div class="area-picker" id="area-picker"></div>
   </header>
@@ -161,8 +182,30 @@
   </div>
 </div>
 
+<div id="storage-banner"></div>
 <div id="list-container"></div>
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="modal-backdrop" id="backup-backdrop" onclick="if (event.target === this) closeBackupSheet()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>Backup</h2>
+    <p class="backup-text">Your places live only in this browser. Safari can clear them, so save a backup now and then — to Files, iCloud Drive or a note to yourself.</p>
+    <p class="backup-meta" id="backup-meta"></p>
+    <button class="backup-btn" onclick="exportBackup()">Save a backup<small>Exports every place as a .json file</small></button>
+    <button class="backup-btn" onclick="document.getElementById('import-file').click()">Restore from a backup<small>Choose a London List .json file</small></button>
+    <button class="backup-btn" id="undo-import-btn" onclick="undoImport()" hidden>Undo last import<small id="undo-import-meta"></small></button>
+    <input type="file" id="import-file" accept="application/json,.json" hidden onchange="readImportFile(this)">
+    <div class="import-review" id="import-review" hidden>
+      <p class="backup-text" id="import-summary"></p>
+      <button class="backup-btn" onclick="applyImport('merge')">Merge into my list<small>Adds new places; places already here are updated from the file</small></button>
+      <button class="backup-btn" onclick="applyImport('replace')">Replace my list<small>Your current list is kept as a copy you can undo to</small></button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeBackupSheet()">Close</button>
+    </div>
+  </div>
+</div>
 <button class="fab" onclick="openModal()">+</button>
 
 <div class="modal-backdrop" id="modal-backdrop" onclick="backdropClick(event)">
@@ -278,22 +321,139 @@ const AREA_ORDER = [
   "Greenwich & Deptford","Anywhere (Underground)"
 ];
 
-const STORE_KEY = 'll-places-v2';
 const tagColors = {
   food:'tag-food', museum:'tag-museum', architecture:'tag-architecture',
   walk:'tag-walk', history:'tag-history', art:'tag-art', nature:'tag-nature'
 };
 
-function loadPlaces() {
-  const stored = localStorage.getItem(STORE_KEY);
-  if (stored) return JSON.parse(stored);
-  const places = SEED.map((s, i) => ({
+// ── STORAGE ───────────────────────────────────────────────────────────────────
+// Saved shape (schema v3): { version: 3, savedAt: ISO string, places: [...] }
+// v2 (key 'll-places-v2') was a bare array of places; it is migrated on first
+// load and the old key is left untouched as a fallback copy.
+const SCHEMA_VERSION = 3;
+const STORE_KEY      = 'll-data';
+const LEGACY_KEYS    = ['ll-places-v2'];
+const BACKUP_KEY     = 'll-backup';       // copy of the list taken before an import
+const DAMAGED_KEY    = 'll-damaged';      // unreadable data kept aside, never overwritten
+const LAST_EXPORT_KEY = 'll-last-export';
+const MAX_NAME = 200, MAX_NOTE = 2000;
+
+// When saved data can't be read, saving is blocked so nothing overwrites it.
+let storageProblem = null; // null | { message, raw }
+let toastTimer;            // declared here because savePlaces() can toast during load
+
+function storageGet(key) {
+  try { return localStorage.getItem(key); } catch (e) { return null; }
+}
+function storageSet(key, value) {
+  try { localStorage.setItem(key, value); return true; } catch (e) { return false; }
+}
+
+// Escape user-entered text before it goes into any HTML string.
+function esc(v) {
+  return String(v ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
+}
+
+function cleanText(v, max) {
+  if (v === null || v === undefined) return '';
+  return String(v).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').trim().slice(0, max);
+}
+
+// Turn any stored or imported record into a well-formed place, or null if unusable.
+function normalisePlace(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  const name = cleanText(raw.name, MAX_NAME);
+  if (!name) return null;
+  const tags = Array.isArray(raw.tags)
+    ? [...new Set(raw.tags.filter(t => typeof t === 'string' && t.trim()).map(t => t.trim().toLowerCase()))]
+    : [];
+  return {
+    id: typeof raw.id === 'string' && raw.id ? raw.id.slice(0, 100) : '',
+    area: cleanText(raw.area, 100) || 'To Sort',
+    name,
+    note: cleanText(raw.note, MAX_NOTE) || null,
+    tags,
+    visited: raw.visited === true,
+  };
+}
+
+// Normalise a list: drop unusable records and make sure every id is unique.
+function normaliseList(list) {
+  const seen = new Set();
+  const out = [];
+  let skipped = 0;
+  list.forEach((raw, i) => {
+    const p = normalisePlace(raw);
+    if (!p) { skipped++; return; }
+    let id = p.id || `p-${Date.now().toString(36)}-${i}`;
+    while (seen.has(id)) id += '-' + i;
+    seen.add(id); p.id = id;
+    out.push(p);
+  });
+  return { places: out, skipped };
+}
+
+// Accepts any known saved/exported shape and returns { places, skipped }.
+// Throws if the data isn't recognisable or is from a newer version of the app.
+function migrate(data) {
+  let version, list;
+  if (Array.isArray(data)) { version = 2; list = data; }          // v2: bare array
+  else if (data && typeof data === 'object' && Array.isArray(data.places)) {
+    version = Number(data.version) || 2; list = data.places;
+  } else {
+    throw new Error('Not a London List file');
+  }
+  if (version > SCHEMA_VERSION) {
+    throw new Error('Saved by a newer version of London List');
+  }
+  // Future migrations go here, e.g. if (version < 4) list = list.map(addCoords);
+  return normaliseList(list);
+}
+
+function seedPlaces() {
+  return SEED.map((s, i) => ({
     id: 'seed-' + i, area: s.area, name: s.name, note: s.note || null,
     tags: s.tags || [], visited: s.visited || false,
   }));
-  savePlaces(places); return places;
 }
-function savePlaces(p) { localStorage.setItem(STORE_KEY, JSON.stringify(p)); }
+
+function loadPlaces() {
+  let raw = storageGet(STORE_KEY);
+  let fromLegacy = false;
+  if (raw === null) {
+    for (const key of LEGACY_KEYS) {
+      raw = storageGet(key);
+      if (raw !== null) { fromLegacy = true; break; }
+    }
+  }
+  if (raw === null) {
+    const seeded = seedPlaces();
+    savePlaces(seeded);
+    return seeded;
+  }
+  try {
+    const { places: loaded } = migrate(JSON.parse(raw));
+    if (fromLegacy) savePlaces(loaded); // write the v3 copy; the legacy key stays as-is
+    return loaded;
+  } catch (e) {
+    // Keep the unreadable data aside (without replacing an earlier copy) and block saving.
+    if (storageGet(DAMAGED_KEY) === null) storageSet(DAMAGED_KEY, raw);
+    storageProblem = { message: e instanceof SyntaxError ? 'Your saved places couldn’t be read.' : e.message, raw };
+    return [];
+  }
+}
+
+function savePlaces(p) {
+  if (storageProblem) {
+    showToast('Not saved — sort out the storage problem first');
+    return false;
+  }
+  const ok = storageSet(STORE_KEY, JSON.stringify({
+    version: SCHEMA_VERSION, savedAt: new Date().toISOString(), places: p,
+  }));
+  if (!ok) showToast('Couldn’t save — storage is full or blocked. Export a backup.');
+  return ok;
+}
 
 let places = loadPlaces();
 let activeArea = 'all';
@@ -386,9 +546,9 @@ function initMap(visible) {
 
     const m = L.marker([lat, lon], { icon }).addTo(leafletMap);
     m.bindPopup(`<div style="font-family:-apple-system,sans-serif">
-      <div style="font-weight:600;font-size:0.85rem;color:#1a1410;margin-bottom:3px">${p.name}</div>
-      ${p.note ? `<div style="font-size:0.73rem;color:#8b6f47;font-style:italic;margin-bottom:5px">${p.note}</div>` : ''}
-      <a href="${mapsUrl}" target="_blank" style="color:#c0392b;font-size:0.78rem;font-weight:600;text-decoration:none">Open in Google Maps →</a>
+      <div style="font-weight:600;font-size:0.85rem;color:#1a1410;margin-bottom:3px">${esc(p.name)}</div>
+      ${p.note ? `<div style="font-size:0.73rem;color:#8b6f47;font-style:italic;margin-bottom:5px">${esc(p.note)}</div>` : ''}
+      <a href="${esc(mapsUrl)}" target="_blank" rel="noopener" style="color:#c0392b;font-size:0.78rem;font-weight:600;text-decoration:none">Open in Google Maps →</a>
     </div>`);
     leafletMarkers.push(m);
     bounds.push([lat, lon]);
@@ -478,6 +638,7 @@ function itemVisible(p) {
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function render() {
+  renderStorageBanner();
   const container = document.getElementById('list-container');
   container.innerHTML = '';
 
@@ -491,7 +652,7 @@ function render() {
     const count = places.filter(p => p.area === activeArea && itemVisible(p)).length;
     const bar = document.createElement('div');
     bar.className = 'context-bar';
-    bar.innerHTML = `<span class="context-area">${activeArea}</span><span class="context-count">${count} place${count !== 1 ? 's' : ''}</span>`;
+    bar.innerHTML = `<span class="context-area">${esc(activeArea)}</span><span class="context-count">${count} place${count !== 1 ? 's' : ''}</span>`;
     container.appendChild(bar);
   }
 
@@ -505,7 +666,7 @@ function render() {
     if (activeArea === 'all') {
       const hdr = document.createElement('div');
       hdr.className = 'area-header';
-      hdr.innerHTML = `<span class="area-name">${area}</span><span class="area-count">${areaPlaces.length} to go</span>`;
+      hdr.innerHTML = `<span class="area-name">${esc(area)}</span><span class="area-count">${areaPlaces.length} to go</span>`;
       sec.appendChild(hdr);
     }
     const grid = document.createElement('div');
@@ -515,7 +676,7 @@ function render() {
     container.appendChild(sec);
   });
 
-  if (!anyItems) {
+  if (!anyItems && !storageProblem) {
     const msg = activeType === 'visited' ? 'No visited places yet' : 'Nothing here — tap + to add a place';
     container.innerHTML += `<div class="empty-state">${msg}</div>`;
   }
@@ -525,26 +686,43 @@ function renderItem(grid, p) {
   const el = document.createElement('div');
   el.className = `item${p.visited ? ' visited' : ''}`;
   const tagHtml = (p.tags||[]).slice(0,1).map(t =>
-    `<span class="item-tag ${tagColors[t]||''}">${t}</span>`
+    `<span class="item-tag ${tagColors[t]||''}">${esc(t)}</span>`
   ).join('');
   el.innerHTML = `
     <div class="item-check">${p.visited ? '✓' : ''}</div>
     <div class="item-body">
-      <div class="item-name">${p.name}</div>
-      ${p.note ? `<div class="item-note">${p.note}</div>` : ''}
+      <div class="item-name">${esc(p.name)}</div>
+      ${p.note ? `<div class="item-note">${esc(p.note)}</div>` : ''}
     </div>
     ${tagHtml}
   `;
-  el.addEventListener('click', () => toggleVisited(p.id));
-  let pressTimer;
-  el.addEventListener('pointerdown', () => {
+  // Tap = toggle visited. Hold (600 ms, finger kept still) = edit, and the
+  // click that follows the hold is swallowed so it doesn't also toggle visited.
+  let pressTimer = null, startX = 0, startY = 0, longPressed = false;
+  const cancelPress = () => { clearTimeout(pressTimer); pressTimer = null; };
+  el.addEventListener('pointerdown', e => {
+    longPressed = false;
+    startX = e.clientX; startY = e.clientY;
+    cancelPress();
     pressTimer = setTimeout(() => {
+      pressTimer = null;
+      longPressed = true;
+      if (navigator.vibrate) navigator.vibrate(10);
       openEditModal(p.id);
-    }, 700);
+    }, 600);
   });
-  el.addEventListener('pointerup',    () => clearTimeout(pressTimer));
-  el.addEventListener('pointermove',  () => clearTimeout(pressTimer));
-  el.addEventListener('pointerleave', () => clearTimeout(pressTimer));
+  el.addEventListener('pointermove', e => {
+    // Allow small finger wobble; a real drag (e.g. scrolling) cancels the hold.
+    if (pressTimer && Math.hypot(e.clientX - startX, e.clientY - startY) > 10) cancelPress();
+  });
+  el.addEventListener('pointerup', cancelPress);
+  el.addEventListener('pointercancel', cancelPress);
+  el.addEventListener('pointerleave', cancelPress);
+  el.addEventListener('contextmenu', e => e.preventDefault());
+  el.addEventListener('click', e => {
+    if (longPressed) { longPressed = false; e.preventDefault(); return; }
+    toggleVisited(p.id);
+  });
   grid.appendChild(el);
 }
 
@@ -553,16 +731,36 @@ function toggleVisited(id) {
   if (!p) return;
   p.visited = !p.visited;
   savePlaces(places);
-  if (p.visited) showToast('Marked visited · tap again to undo');
   render();
+  // The place disappears from the current list, so offer a real Undo.
+  showToast(p.visited ? `“${p.name}” marked visited` : `“${p.name}” back on your list`, {
+    label: 'Undo',
+    onAction: () => { p.visited = !p.visited; savePlaces(places); render(); },
+  });
 }
 
-let toastTimer;
-function showToast(msg) {
+// showToast(msg) or showToast(msg, { label: 'Undo', onAction: fn })
+function showToast(msg, action) {
   const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
+  t.textContent = '';
+  const span = document.createElement('span');
+  span.textContent = msg;
+  t.appendChild(span);
+  t.classList.toggle('has-action', !!action);
+  if (action) {
+    const b = document.createElement('button');
+    b.className = 'toast-action';
+    b.textContent = action.label;
+    b.onclick = () => { hideToast(); action.onAction(); };
+    t.appendChild(b);
+  }
+  t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+  toastTimer = setTimeout(hideToast, action ? 5000 : 2500);
+}
+function hideToast() {
+  const t = document.getElementById('toast');
+  t.classList.remove('show', 'has-action');
 }
 
 // ── MODAL ─────────────────────────────────────────────────────────────────────
@@ -686,6 +884,197 @@ function deleteFromEdit() {
   buildAreaPicker();
   render();
 }
+// ── BACKUP: EXPORT / IMPORT ───────────────────────────────────────────────────
+let pendingImport = null; // { places, skipped, fileName }
+
+function placeKey(p) {
+  const n = p.name.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+  return n + '|' + p.area;
+}
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) +
+    ', ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+}
+
+function openBackupSheet() {
+  const last = storageGet(LAST_EXPORT_KEY);
+  document.getElementById('backup-meta').textContent =
+    `${places.length} place${places.length !== 1 ? 's' : ''} · ` +
+    (last ? `Last backup ${formatDate(last)}` : 'No backup saved from this device yet');
+  refreshUndoImport();
+  pendingImport = null;
+  document.getElementById('import-review').hidden = true;
+  document.getElementById('backup-backdrop').classList.add('open');
+}
+function closeBackupSheet() {
+  pendingImport = null;
+  document.getElementById('backup-backdrop').classList.remove('open');
+}
+
+function refreshUndoImport() {
+  const btn = document.getElementById('undo-import-btn');
+  let backup = null;
+  try { backup = JSON.parse(storageGet(BACKUP_KEY)); } catch (e) {}
+  btn.hidden = !(backup && Array.isArray(backup.places));
+  if (!btn.hidden) {
+    document.getElementById('undo-import-meta').textContent =
+      `Go back to the ${backup.places.length} places you had on ${formatDate(backup.savedAt)}`;
+  }
+}
+
+// Hand a file to the iOS share sheet (Save to Files, AirDrop…), or download it.
+async function saveFile(text, fileName, type) {
+  const file = new File([text], fileName, { type });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: fileName });
+      return true;
+    } catch (e) {
+      if (e.name === 'AbortError') return false; // user cancelled the share sheet
+      // otherwise fall through to a plain download
+    }
+  }
+  const url = URL.createObjectURL(file);
+  const a = document.createElement('a');
+  a.href = url; a.download = fileName;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+  return true;
+}
+
+async function exportBackup() {
+  const now = new Date();
+  const payload = { app: 'london-list', version: SCHEMA_VERSION, exportedAt: now.toISOString(), places };
+  const fileName = `london-list-backup-${now.toISOString().slice(0, 10)}.json`;
+  const saved = await saveFile(JSON.stringify(payload, null, 2), fileName, 'application/json');
+  if (saved) {
+    storageSet(LAST_EXPORT_KEY, now.toISOString());
+    showToast('Backup saved');
+    openBackupSheet(); // refresh "last backup"
+  }
+}
+
+async function readImportFile(input) {
+  const file = input.files && input.files[0];
+  input.value = ''; // so choosing the same file again still triggers a change
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { showToast('That file is too big to be a London List backup'); return; }
+  let result;
+  try {
+    result = migrate(JSON.parse(await file.text()));
+  } catch (e) {
+    showToast(e instanceof SyntaxError ? 'That file isn’t valid JSON' : e.message);
+    return;
+  }
+  if (!result.places.length) { showToast('No places found in that file'); return; }
+  pendingImport = { ...result, fileName: file.name };
+  const n = result.places.length;
+  document.getElementById('import-summary').textContent =
+    `“${file.name}” has ${n} place${n !== 1 ? 's' : ''}` +
+    (result.skipped ? ` (${result.skipped} unreadable entr${result.skipped !== 1 ? 'ies' : 'y'} will be skipped)` : '') +
+    '. What would you like to do?';
+  const review = document.getElementById('import-review');
+  review.hidden = false;
+  review.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// True if it's safe to stop protecting unreadable data (it was set aside, or the user accepts losing it).
+function okToLeaveDamagedData() {
+  if (!storageProblem || storageGet(DAMAGED_KEY) !== null) return true;
+  return confirm('The unreadable data couldn’t be set aside, so continuing will lose it. ' +
+    'Tap Cancel and use “Download unreadable data” first if you might need it. Continue?');
+}
+
+function applyImport(mode) {
+  if (!pendingImport) return;
+  if (!okToLeaveDamagedData()) return;
+  // Keep a copy of the current list so the import can be undone.
+  const hadBackup = storageSet(BACKUP_KEY, JSON.stringify({ savedAt: new Date().toISOString(), places }));
+  if (!hadBackup && places.length &&
+      !confirm('Couldn’t keep a copy of your current list, so this import can’t be undone. Continue?')) return;
+
+  const incoming = pendingImport.places;
+  let message;
+  if (mode === 'replace') {
+    places = incoming;
+    message = `Replaced with ${incoming.length} places`;
+  } else {
+    const byId = new Map(places.map((p, i) => [p.id, i]));
+    const keys = new Set(places.map(placeKey));
+    let added = 0, updated = 0, dupes = 0;
+    incoming.forEach(p => {
+      if (byId.has(p.id)) { places[byId.get(p.id)] = p; updated++; }
+      else if (keys.has(placeKey(p))) { dupes++; }
+      else { places.push(p); keys.add(placeKey(p)); added++; }
+    });
+    message = `Added ${added}` + (updated ? `, updated ${updated}` : '') + (dupes ? `, skipped ${dupes} already here` : '');
+  }
+  storageProblem = null;
+  pendingImport = null;
+  savePlaces(places);
+  closeBackupSheet();
+  activeArea = 'all';
+  buildAreaPicker(); render();
+  showToast(message, hadBackup ? { label: 'Undo', onAction: undoImport } : null);
+}
+
+function undoImport() {
+  let restored;
+  try { restored = migrate(JSON.parse(storageGet(BACKUP_KEY))).places; }
+  catch (e) { showToast('No import to undo'); return; }
+  places = restored;
+  storageProblem = null;
+  if (savePlaces(places)) { try { localStorage.removeItem(BACKUP_KEY); } catch (e) {} }
+  closeBackupSheet();
+  activeArea = 'all';
+  buildAreaPicker(); render();
+  showToast(`Back to your ${places.length} places`);
+}
+
+// ── STORAGE PROBLEM BANNER ────────────────────────────────────────────────────
+function renderStorageBanner() {
+  const el = document.getElementById('storage-banner');
+  el.innerHTML = '';
+  if (!storageProblem) return;
+  const box = document.createElement('div');
+  box.className = 'storage-banner';
+  box.setAttribute('role', 'alert');
+  const title = document.createElement('strong');
+  title.textContent = storageProblem.message;
+  const body = document.createElement('div');
+  body.textContent = 'Nothing has been deleted, and saving is paused so it can’t be overwritten. ' +
+    'Download the unreadable data to keep it, restore a backup, or start a fresh list.';
+  const actions = document.createElement('div');
+  actions.className = 'banner-actions';
+  [['Download unreadable data', exportDamaged],
+   ['Restore a backup', openBackupSheet],
+   ['Start fresh', startFresh]].forEach(([label, fn]) => {
+    const b = document.createElement('button');
+    b.textContent = label; b.onclick = fn;
+    actions.appendChild(b);
+  });
+  box.append(title, body, actions);
+  el.appendChild(box);
+}
+
+function exportDamaged() {
+  const raw = storageProblem ? storageProblem.raw : storageGet(DAMAGED_KEY);
+  if (raw === null || raw === undefined) return;
+  saveFile(raw, `london-list-unreadable-${new Date().toISOString().slice(0, 10)}.txt`, 'text/plain');
+}
+
+function startFresh() {
+  if (!confirm('Start an empty list? The unreadable data won’t be used.')) return;
+  if (!okToLeaveDamagedData()) return;
+  storageProblem = null;
+  places = [];
+  savePlaces(places);
+  buildAreaPicker(); render();
+}
+
 buildAreaPicker();
 render();
 </script>
